@@ -1,0 +1,1504 @@
+#+STARTUP: hidestars
+
+* Введение
+
+  Данный орг-документ будет заключать в себе конфигурационный файл имакс(emacs) оформленный в стиле "граммотного программирования" Дональда Кнута в той мере в какой я его понимаю в данный момент. Я решил использовать такой подход в конфигурировании имакс исходя из нескольких причин
+
+  1. всё возрастающее число расширений имакс, и как следствие, всё возрастающая сложность и запутанность конфигурационного файла .emacs
+  2. возрастающее число известных мне сведений о работе с имакс. в частности, освоение базовых возможностей org-mode(и как причина, и как фактор, делающий такую организацию возможной)
+  3. симпатии к [[~/Dropbox/notes/org/scientia.org::*%D0%A1%D0%B8%D0%BD%D0%B5%D1%80%D0%B3%D0%B8%D1%8F][синергетическому]] подходу в организации информации
+  4. несомненные плюсы самодокументированных информационных систем
+
+  По мере естественного эволюционного развития этого документа, осущесвляемого через меня, сложность организации будет неизбежно увеличиваться. Но пока я предполагаю следующую структуру -- два заголовка, обозначающее логическое разделение процесса настройки  имакса пополам -- настройка связанная непосредственно с имакс(указание цветовой схемы и/или шрифта например) и настройка расширений. Раздел посвящённый настройки встроенных расширений(или режимов соответствующих в англоязычной терминологии слову mode) несмотря на кажущуюся неразрывночть непосредственно с имаксом, будет относиться ко второй логическйо части. [2015-06-27 Сб 17:47]
+
+  Так как пока объём технических разъяснений для организации данного файла не достиг достаточных объёмов, чтобы выделить их в отдельную рубрику, буду указывать их во введении.
+
+  Снипет для быстрой вставки елисп блока C-a C-y C-s
+
+
+  #+begin_src elisp :tnagle ~/.emacs
+
+  #+end_src
+
+  [2015-08-26 Ср 16:35]
+
+  Предыдыдущий снипет не вызывается по указанной комбинации.
+  Новая комбинация -- C-c C-g
+
+  #+begin_src elisp :tangle ~/.emacs
+
+  #+end_src
+
+  [2015-06-30 Вт 03:40]
+
+  В этом же разделе буду оставлять временные метки о проделанной работе.
+
+  [2015-07-01 Ср 05:20]
+
+  Так как я в прошлый раз забыл сохранить сформулированный снипет в файл для орг-мода, то он пропал. Плюс до кучи выяснилось, что комбинация C-a C-y C-s уже на уровне C-a занята. Поэтоу теперь снипет со вставкой elisp  кода с танглом в конфигурационный файл, назначена на новую комбинацию C-c C-g.
+
+  [2015-07-04 Сб 08:56]
+
+* Инициализация
+** Репозитории расширений
+*** Melpa
+
+    #+BEGIN_SRC elisp
+      (require 'package)
+
+      (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+      (package-initialize)
+    #+END_SRC
+
+    [2015-09-02 Ср 22:17] Теперь подключение мелпы и мармелада будут осуществляться в синхронизирующем пакеты скрипте
+*** Синхронизация пакетов
+    CLOCK: [2015-09-02 Ср 21:49]--[2015-09-02 Ср 23:49] =>  2:00
+    #+begin_src elisp :tangle ~/.emacs
+      (require 'cl)
+      (require 'package)
+
+      (setq cfg-var:packages '(darcula-theme 4clojure alert anti-zenburn-theme async auctex auto-complete autobookmarks cdlatex company company-auctex company-math dash dired-hacks-utils dired-subtree emms emms-mark-ext ensime flymake-easy ggtags git-commit gntp gnuplot gnuplot-mode graphviz-dot-mode haskell-mode hi2 ido-occasional iedit jazz-theme let-alist log4e magit magit-popup math-symbol-lists multiple-cursors neotree org org-pdfview org-pomodoro pdf-tools popup powerline professional-theme request rich-minority s sbt-mode scala-mode scala-mode2 scion slime smart-mode-line tablist timer-revert tree-mode undo-tree warm-night-theme wcheck-mode window-numbering with-editor yasnippet zenburn-theme ztree auto-complete-auctex auto-complete-c-headers emms-info-mediainfo fill-column-indicator flymake-google-cpplint smart-mode-line-powerline-theme paradox calfw ace-window erlang page-break-lines helm-pages browse-kill-ring bookmark+ org-screenshot helm helm-bibtex ebib s f hydra key-chord perspective rainbow-delimiters swiper tiny use-package)) ;; в переменной cfq-var-packages хранятся имена всех устанавливаемых пакетов. правда заносить новые пакеты в этот список нужно руками. пока я не придумал способ автоматизировать этот процесс
+
+      (defun cfg:install-packages ()
+        (let ((pkgs (remove-if #'package-installed-p cfg-var:packages)))
+          (when pkgs
+            (message "%s" "Emacs is now refreshing its package database...")
+            (package-refresh-contents)
+            (message "%s" " done.")
+            (dolist (p cfg-var:packages)
+              (package-install p)))))
+
+      ;;(add-to-list 'package-archives '("marmalade" . "https://marmalade-repo.org/packages/") t)
+      (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+      (package-initialize)
+      (cfg:install-packages)
+
+      ;;(require 'use-package) ;;расширение для организации расширений. если требуемое расширение не установлено -- установит, а если установлено, то настроит
+    #+end_src
+** use-package
+   :LOGBOOK:
+   CLOCK: [2015-10-21 Ср 21:21]--[2015-10-21 Ср 22:33] =>  1:12
+   :END:
+
+   *Помещается наверху отдельно, так как требуется инициализация этого пакета раньше конфигурируемых через него пакетов.*
+
+   Расширение для выделения рабочего места для кода приложения(аналог namespace в с++) в файле конфигурации .emacs
+   Например, выражение (use-package foo) запустит расширение foo если оно установлено.
+
+   Более расширенный пример, раскрывающий суть неймспейсирования
+
+   #+BEGIN_SRC elisp
+     (use-package foo
+                  :init
+                  (setq foo-variable t)
+                  :config
+                  (foo-mode 1))
+   #+END_SRC
+
+   Уединённое пространство для запуска и конфигурирования необходимого пакета. И больше никаких ошибок, если конфигурируемый пакет внезапно оказался не установленым.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (require 'use-package)
+   #+end_src
+
+   Из-за того, что инициализация use-package должна идти до инициализируемых через use-package пакетов, я поместил её в [[*Синхронизация пакетов][синхронизации пакетов]]. Хотя, лучше помещю отдельным фундаментальным пунктом. [2015-10-22 Чт 20:59]
+
+* Параметры emacs
+** Настройка времени и параметров файла в строке состояния
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     ;;Display file size/time in mode-line -- отображение времени и размера файла
+
+     (setq display-time-24hr-format t) ;; 24-часовой временной формат в mode-line
+     (display-time-mode             t) ;; показывать часы в mode-line
+     (size-indication-mode          t) ;; размер файла в %-ах
+
+   #+END_SRC
+** Запуск в качестве сервера
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     ;;2015/03/13 -- 14:24
+
+     ;;Запуск emacs как сервер. Необходимо выяснить в чём особенность такого запуска. Пока предполагаю, что это позволяет запускать через emacsclient
+     (require 'server)
+     (unless (server-running-p)
+         (server-start))
+   #+END_SRC
+** Имя и адрес электронной почты
+
+   Эти параметры используются в подписи при автоматической генерации документов(html страницы из орг-документа, например) или для идентификации в джаббер-расширениии для имакса. Которого у меня в прочем нет. Но всё ещё впереди.
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     ;;25/02/15 13:09
+
+     ;;Укажу имя и электронный адрес на случай будущего подключения jabber расширения
+
+     (setq user-full-name "Ludwig")
+     (setq user-mail-address "universitas.literarum@gmail.com")
+   #+END_SRC
+** Внешний вид
+*** имя буфера в шапке окна
+
+    #+BEGIN_SRC elisp :tangle ~/.emacs
+      ;;указывать имя буфера в шапке окна
+
+      ;;(setq frame-title-format "GNU Emacs: %b") ;; версия с параметром "GNU Emacs: %b" указывающим что название буыера предваряет строка Gnu Emacs. Уберу её.
+      [2015-06-30 Вт 02:57]
+      (setq frame-title-format "%b")
+    #+END_SRC
+
+*** Экран приветствия при запуске
+
+    #+BEGIN_SRC elisp :tangle ~/.emacs
+      ;;указываем, что экран приветствия при запуске не нужно демонстрировать
+
+      (setq inhibit-splash-screen   t)
+      (setq ingibit-startup-message t) ;; экран приветсвия можно вызвать комбинацией C-h C-a
+    #+END_SRC
+
+*** Элементы оформления
+
+    #+BEGIN_SRC elisp :tangle ~/.emacs
+      ;; отключение лишних графических элементов
+
+      (tooltip-mode      -1)
+      ;;(menu-bar-mode     -1) ;; отключаем графическое меню
+      (tool-bar-mode     -1) ;; отключаем tool-bar
+      (scroll-bar-mode   -1) ;; отключаем полосу прокрутки
+      (blink-cursor-mode -1) ;; курсор не мигает
+      (setq use-dialog-box     nil) ;; никаких графических диалогов и окон - все через минибуфер
+      (setq redisplay-dont-pause t)  ;; лучшая отрисовка буфера
+      (setq ring-bell-function 'ignore) ;; отключить звуковой сигнал
+
+      ;; Fringe settings
+      (fringe-mode '(8 . 0)) ;; органичиталь текста только слева
+      (setq-default indicate-empty-lines t) ;; отсутствие строки выделить глифами рядом с полосой с номером строки
+      (setq-default indicate-buffer-boundaries 'left) ;; индикация только слева
+    #+END_SRC
+
+*** Размер фрейма при запуске
+
+    Отключил определение размера сайленсом заклинания имакс. почему-то такой детерменизм не понравился. но оставлю само заклинание чтобы знать как это делается.
+
+    #+BEGIN_SRC elisp :tangle ~/.emacs
+      ;; Определим размер окна с Emacs при запуске:
+
+      ;; Start window size
+      ;;(when (window-system)
+      ;;    (set-frame-size (selected-frame) 100 50))
+    #+END_SRC
+
+** COMMENT Сохранение рабочей сессии
+
+   #+begin_src elisp :tangle
+     ;;2015/03/22 -- 20:08
+     ;;уаказание emacs сохранять текущую сессию
+
+     (desktop-save-mode t)
+   #+end_src
+
+** Редактирование
+*** Ввод юникод-символов
+**** Система счисления кодов символов
+     Указания на то, в какой система счисления вводятся символы по команде C-q
+     #+begin_src elisp :tangle ~/.emacs
+       (custom-set-variables '(read-quoted-char-radix 16))
+     #+end_src
+*** Синтаксис
+**** Цветовое  выделение выражение между скобками((),{},[])
+
+     #+BEGIN_SRC elisp :tangle ~/.emacs
+       ;; выделим выражение между {}, [], (), когда курсор находится на одной из скобок
+
+       (show-paren-mode                 t) ;; включить выдеение выражений между {}, [], ()
+       (setq show-paren-style 'expression) ;; выделить цветом выражения между {}, [], ()
+     #+END_SRC
+**** Автоматическое закрытие скобок и кавычек
+
+     #+BEGIN_SRC elisp :tangle ~/.emacs
+       ;;включение автоматического закрытия скобок, кавычек et cetera
+
+       (electric-pair-mode 1) ;; автозакрытие  {}, [], (), ""
+     #+END_SRC
+**** Выделение результатов поиска
+
+     #+begin_src elisp :tangle ~/.emacs
+       ;; Highlight search resaults Выделять результаты поиска:
+
+       (setq search-highlight        t)
+       (setq query-replace-highlight t)
+     #+end_src
+
+** Форматирование и отображение текста
+
+   Настройки отступов
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;; Indent settings настройки отступов
+
+     (setq-default indent-tabs-mode nil) ;; отключить возможность ставить отступы TAB'ом
+     (setq-default tab-width          4) ;; ширина табуляции - 4 пробельных символа
+     (setq-default c-basic-offset     4)
+     (setq-default standart-indent    4) ;; стандартная ширина отступа - 4 пробельных символа
+     (setq-default lisp-body-indent   4) ;; сдвигать Lisp-выражения на 4 пробельных символа
+     (global-set-key (kbd "RET") 'newline-and-indent) ;; при нажатии Enter перевести каретку и сделать отступ
+     (setq lisp-indent-function  'common-lisp-indent-function)
+
+   #+end_src
+
+   Замена TAB'ов на пробелы и удаление лишних пробелов
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;; Delete trailing whitespaces, format buffer and untabify when save buffer Удалить лишние пробелы в конце строк, заменить TAB'ы на пробелы и выровнять отступы при сохранении буфера в файл, автоматически:
+     (defun format-current-buffer()
+         (indent-region (point-min) (point-max)))
+     (defun untabify-current-buffer()
+         (if (not indent-tabs-mode)
+             (untabify (point-min) (point-max)))
+         nil)
+     (add-to-list 'write-file-functions 'format-current-buffer)
+     (add-to-list 'write-file-functions 'untabify-current-buffer)
+     (add-to-list 'write-file-functions 'delete-trailing-whitespace)
+
+   #+end_src
+
+   Скроллинг
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;; Scrolling settings плавный скроллинг:
+     (setq scroll-step               1) ;; вверх-вниз по 1 строке
+     (setq scroll-margin            10) ;; сдвигать буфер верх/вниз когда курсор в 10 шагах от верхней/нижней границы
+     (setq scroll-conservatively 10000)
+   #+end_src
+** Управление буерами
+*** Перемещение между сплитами
+
+    Сплит -- это часть разделённого фрейма с отображающимся в нём буфере. Бывает удобно разделить одно окно на несколько сплитов с отображением разных или одних и тех же буферов(для того чтобы переносить информацию из начала в конец или наоборот в объёмном буфере, например).
+    Данная комбинация перемещения не работает для org-mode, ибо перекрывается оргмодовской.
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;;перемещение между сплитами комбинацией M-arrow
+
+      (if (equal nil (equal major-mode 'org-mode))
+          (windmove-default-keybindings 'meta))
+    #+end_src
+*** автоматическое синхронизация  буфера с связанным файлом
+
+    #+BEGIN_SRC elisp :tangle ~/.emacs
+      (global-auto-revert-mode t)
+    #+END_SRC
+** Закладки
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;; Bookmark settings Настроим Bookmark — закладки, которые помогают быстро перемещаться по тексту:
+
+     (require 'bookmark)
+     (setq bookmark-save-flag t) ;; автоматически сохранять закладки в файл
+     (when (file-exists-p (concat user-emacs-directory "bookmarks"))
+         (bookmark-load bookmark-default-file t)) ;; попытаться найти и открыть файл с закладками
+     (global-set-key (kbd "<f3>") 'bookmark-set) ;; создать закладку по F3
+     (global-set-key (kbd "<f4>") 'bookmark-jump) ;; прыгнуть на закладку по F4
+     (global-set-key (kbd "<f5>") 'bookmark-bmenu-list) ;; открыть список закладок
+     (setq bookmark-default-file (concat user-emacs-directory "bookmarks")) ;; хранить закладки в файл bookmarks в .emacs.d
+
+   #+end_src
+
+** Краткое подтверждение
+   :LOGBOOK:
+   CLOCK: [2015-09-23 Ср 19:03]--[2015-09-23 Ср 19:07] =>  0:04
+   :END:
+   Вместо набора yes или no для подтверждения некоторых действий, укажем краткое подтверждение y или n. [[http://pragmaticemacs.com/emacs/make-all-prompts-y-or-n/][По статье]].
+   #+begin_src elisp :tangle ~/.emacs
+     (fset 'yes-or-no-p 'y-or-n-p)
+   #+end_src
+** Тема оформления и шрифт
+
+   Лучше всего настраивать цветовую тему и шрифты средствами самого emacs. Но чтобы у меня не произошёл сброс этих настроек при обновлении файла конфигурации, я занесу под этим заголовком копипасту настроек из старого конф. файла. Тангл той или цветовой схемы необходимо отключить в зависимости от компьютера, на котором происходит экспорт.
+   [2015-09-23 Ср 17:53] Нашёл способ средствами самого имакс регулировать экспорт кода на разных машинах. Этиим средствами являются закомментариевание по комбинации C-; . При работе на demerzeil'е будет закоменчен Omnius, при работе на Omnius будет закоменчен demerzeil.
+*** Конфигурация цветовой схемы(и шрифта) для Omnius
+
+    #+begin_src elisp :tangle ~/.emacs
+      (custom-set-variables
+       ;; custom-set-variables was added by Custom.
+       ;; If you edit it by hand, you could mess it up, so be careful.
+       ;; Your init file should contain only one such instance.
+       ;; If there is more than one, they won't work right.
+       '(custom-enabled-themes (quote (darcula)))
+       '(custom-safe-themes
+         (quote
+          ("8a5861643f5e45af35651e1aaa2be7849f215b7e2a9bb14928f44033354153ae" default))))
+      (custom-set-faces
+       ;; custom-set-faces was added by Custom.
+       ;; If you edit it by hand, you could mess it up, so be careful.
+       ;; Your init file should contain only one such instance.
+       ;; If there is more than one, they won't work right.
+       '(default ((t (:inherit nil :stipple nil :background "#2B2B2B" :foreground "#a9b7c6" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Terminus")))))
+
+    #+end_src
+*** COMMENT Конфигурация цветовой схемы(и шрифта) для demerzeil
+
+    #+BEGIN_SRC elisp :tangle ~/.emacs
+      ;;[2015-06-15 Пн 05:23]
+      ;;цветовая схема
+
+      (custom-set-variables
+       ;; custom-set-variables was added by Custom.
+       ;; If you edit it by hand, you could mess it up, so be careful.
+       ;; Your init file should contain only one such instance.
+       ;; If there is more than one, they won't work right.
+       '(custom-enabled-themes (quote (warm-night)))
+       '(custom-safe-themes
+         (quote
+          ("ac2b1fed9c0f0190045359327e963ddad250e131fbf332e80d371b2e1dbc1dc4" default))))
+      (custom-set-faces
+       ;; custom-set-faces was added by Custom.
+       ;; If you edit it by hand, you could mess it up, so be careful.
+       ;; Your init file should contain only one such instance.
+       ;; If there is more than one, they won't work right.
+       '(default ((t (:inherit nil :stipple nil :background "#292424" :foreground "#b1b1b1" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 105 :width normal :foundry "xos4" :family "Terminus "))))
+       '(cursor ((t (:background "dark orange")))))
+      (put 'narrow-to-region 'disabled nil)
+    #+END_SRC
+*** COMMENT Тема cyberpunk
+
+    #+begin_src elisp :tangle ~/.emacs
+      (use-package cyberpunk-theme
+          :ensure t
+          :init
+          (load-theme 'cyberpunk t))
+    #+end_src
+
+* Расширения
+** auto-complete
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     ;;auto-complete(не знаю пока точно зачем но делаю как в мануале)
+     ;;авто комплит это автодополнение. автодополнение на все случаи жизни. от редактирования конфигов имакс до тематических языковых
+
+     (require 'auto-complete)
+     (require 'auto-complete-config)
+     (ac-config-default)
+
+     ;;let's define function which initializes auto-complete-c-headers and gets called for c/c++ hook
+
+     (defun my:ac-c-header-init ()
+         (require 'auto-complete-c-headers)
+         (add-to-list 'ac-sources 'ac-sources-c-headers))
+
+     (add-hook 'c++-mode-hook 'my:ac-c-header-init)
+     (add-hook 'c-mode-hook 'my:ac-c-header-init)
+   #+END_SRC
+
+   Из-за того, что общая инициализация auto-complete оказалась ниже подключения ac-mode  для auctex'а, возникла ошибка.[2015-07-06 Пн 11:36]
+** subword & superword mode
+   CLOCK: [2015-08-27 Чт 12:55]--[2015-08-27 Чт 13:33] =>  0:38
+   CLOCK: [2015-08-27 Чт 12:07]--[2015-08-27 Чт 12:42] =>  0:35
+   CLOCK: [2015-08-27 Чт 11:45]--[2015-08-27 Чт 12:07] =>  0:22
+   CLOCK: [2015-08-26 Ср 18:24]--[2015-08-26 Ср 20:23] =>  1:59
+   CLOCK: [2015-08-26 Ср 17:05]--[2015-08-26 Ср 17:39] =>  0:34
+
+   Чтобы лучше понять что такое суперворд и сабворд моды, лучше всего всего воспользоваться следующей картинкой
+
+   [[file:pictures/sub-super-word-mode.png]]
+
+   О существовании таковых возможностей для имакс я столкнулся [[http://ergoemacs.org/emacs/emacs_subword-mode_superword-mode.html][по ссылке]].
+   Пока что не работает как надо -- не запускается при загрузке имакс.
+   Выяснилось следующее. Так как subword и superword -- minor mode, то запустить его сразу же во всех буферах не получится. Используя [[http://reangdblog.blogspot.com/2015/04/emacs_13.html][статью]]  я создал глобальный режим для sub/superword-mode
+*** subword(вкл)
+
+    Определим функцию включающую subword-mode
+
+    #+begin_src elisp :tangle ~/.emacs
+      (defun turn-on-subword-mode ()
+          (interactive)
+          (subword-mode t))
+    #+end_src
+
+    А тепрь определим функцию выключающую subword-mode(необходима чтобы отключать subword, например, в минибуфере)
+
+    #+begin_src elisp :tangle ~/.emacs
+      (defun turn-off-subword-mode ()
+          (interactive)
+          (subword-mode 0))
+    #+end_src
+
+    Сделаем малый режим(режим для одного буфера) всеобщим
+
+    #+begin_src elisp :tangle ~/.emacs
+      (define-globalized-minor-mode global-subword-mode subword-mode turn-on-subword-mode)
+    #+end_src
+
+    Определю хук(функцию, запускающуюся в зависимости от ситуации) запуска глобального subword-mode при изменении списка буферов. i.e. global-subword-mode будет каждый раз активироваться при создании/удалении буферов. Это нужно чтобы subword включался и в новых буферах тоже.
+
+    [[http://www.gnu.org/software/emacs/manual/html_node/elisp/Standard-Hooks.html][Список разных полезных хуков на различные события в имакс]]
+
+    #+begin_src elisp :tangle ~/.emacs
+      (add-hook 'buffer-list-update-hook 'global-subword-mode)
+    #+end_src
+
+*** superword(выкл)
+
+    #+begin_src elisp :tangle ~/.emacs
+      (superword-mode 0);; 1 включено, 0 выключено
+    #+end_src
+** Средства разработки
+*** LaTeX
+**** Auctex
+
+     Подключение auctex и задание начальных опций
+
+     #+begin_src elisp :tangle ~/.emacs
+        ;;14/04/2015
+
+       ;;Actex
+       (require 'tex-site)
+       ;;(add-hook 'TeX-mode-hook
+       ;;          '(lambda ()
+       ;;            (local-set-key "\\" 'TeX-electric-macro )))
+
+       ;;11/05/15 -- 14:32
+       (setq-default TeX-master nil);;опция указывающая auctex спрашивать каждый раз имя главного файла, на случай если я злоупотребляю input и include
+     #+end_src
+
+     Настройка программы просмотра для tex2pdf
+
+     #+begin_src elisp :tangle ~/.emacs
+
+       ;;07/05/2015 -- 10:30
+
+       (setq TeX-view-program-selection
+             '((output-pdf "PDF Viewer")))
+       (setq TeX-view-program-list
+             '(("PDF Viewer" "okular %o")))
+     #+end_src
+
+**** company-mode для auctex
+
+     #+begin_src elisp :tangle ~/.emacs
+       ;;30/04/15 12:32
+       (company-auctex-init)
+       ;;30/04/15 -- 23:02
+       (add-hook 'TeX-mode-hook 'company-mode) ;; подгружает company-auctex только в auctex моде. то что нужно
+     #+end_src
+
+**** auto-complete-mode for auctex
+
+     auto-complete-mode это режим интерактивных подсказок-автодополнений на все случаи жизни. Существует ac-mode даже для org-mode,  хотя казалось бы.
+
+     #+begin_src elisp :tangle ~/.emacs
+       ;;30/04/15 -- 23:12
+
+       (add-to-list 'ac-modes 'latex-mode)   ; make auto-complete aware of `latex-mode`
+
+       (defun ac-latex-mode-setup ()         ; add ac-sources to default ac-sources
+           (setq ac-sources (append '(ac-source-math-unicode ac-source-math-latex ac-source-latex-commands)
+                                    ac-sources)))
+
+       (add-hook 'TeX-mode-hook 'ac-latex-mode-setup)
+     #+end_src
+
+**** reftex
+
+     Расширение для работы со ссылками, цитатами et cetera. Удобен в сочетании reftex + Auctex
+
+     Настройка в соответствии с рекомендациями [[http://www.emacswiki.org/emacs/RefTeX][emacs-wiki]].
+
+     #+begin_src elisp :tangle ~/.emacs
+       ;; [2015-07-04 Сб 20:36]
+       ;;подключение рефтеха совместно с ауктехом
+       ;;(setq reftex-plug-into-AUCTEX t)
+     #+end_src
+
+     Что-то не пошла настройка имакс-вики по намеченной траектории. Поэтому, использую рекомендации оффициального руководства.
+
+     #+begin_src elisp :tangle ~/.emacs
+       (require 'reftex)
+
+       ;;подключение reftex'а одновременно с auctex'ом
+
+       (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+
+       ;;подключение одновременно с latex-mode emacs
+
+       (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+     #+end_src
+
+     [2015-07-04 Сб 20:52]
+
+*** erlang
+**** Erlang-mode
+     :LOGBOOK:
+     CLOCK: [2015-09-10 Чт 21:53]--[2015-09-10 Чт 22:17] =>  0:24
+     :END:
+
+     #+begin_src elisp :tangle no
+       ;; Erlang mode
+       (setq load-path (cons "/usr/lib/erlang/lib/tools-2.8/emacs" load-path))
+       (setq erlang-root-dir "/usr/lib/erlang")
+       (setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
+       (require 'erlang-start)
+     #+end_src
+
+     Так как эрланг-мод появился теперь в мелпе, то установил его оттуда. [2015-09-10 Чт 21:53]
+     #+begin_src elisp :tangle ~/.emacs
+     (require 'erlang-start)
+     #+end_src
+**** erlang fly-make
+
+     #+begin_src elisp :tangle ~/em-conf
+       (require 'erlang-flymake)
+       (put 'upcase-region 'disabled nil)
+     #+end_src
+** yasnippet
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     ;;start yasnippet with emacs
+     (require 'yasnippet)
+     (yas-global-mode 1)
+   #+END_SRC
+** iedit-mode
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     ;;iedit-mode
+
+     (define-key global-map (kbd "C-c ;") 'iedit-mode)
+   #+END_SRC
+** linum-plugin
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     ;;12/03/15 -- 22:01
+
+     ;; Linum plugin -- стандартная нумерация строк
+
+     (require 'linum) ;; вызвать Linum
+     (line-number-mode   t) ;; показать номер строки в mode-line
+     (global-linum-mode  t) ;; показывать номера строк во всех буферах
+     (column-number-mode t) ;; показать номер столбца в mode-line
+     (setq linum-format " %d") ;; задаем формат нумерации строк
+   #+END_SRC
+
+** CEDET
+
+   Частичная настройка [[http://alexott.net/ru/writings/emacs-devenv/EmacsCedet.html][по статье]] Алекса Отта
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;; 13/03/15 -- 19:59
+
+     ;; CEDET settings Пакет CEDET — работа с C/C++/Java (прекрасная статья Alex Ott'a по CEDET):
+
+     (require 'cedet) ;; использую "вшитую" версию CEDET. Мне хватает...
+     (add-to-list 'semantic-default-submodes 'global-semanticdb-minor-mode)
+     (add-to-list 'semantic-default-submodes 'global-semantic-mru-bookmark-mode)
+     (add-to-list 'semantic-default-submodes 'global-semantic-idle-scheduler-mode)
+     (add-to-list 'semantic-default-submodes 'global-semantic-highlight-func-mode)
+     (add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
+     (add-to-list 'semantic-default-submodes 'global-semantic-show-parser-state-mode)
+     (semantic-mode   t)
+     (global-ede-mode t)
+     (require 'ede/generic)
+     (require 'semantic/ia)
+     (require 'semantic/bovine/gcc)
+     (ede-enable-generic-projects)
+
+     ;;14/03/2015 -- 18:25
+
+     ;;интеграция семантика CDET'а с imenu
+
+     (defun my-semantic-hook ()
+         (imenu-add-to-menubar "TAGS"))
+     (add-hook 'semantic-init-hooks 'my-semantic-hook)
+
+     ;;15/03/15 -- 09:05
+
+     ;; настройка semanticdb
+
+     ;; поддержка пакета gnu global
+     ;;(when (cedet-gnu-global-version-check t )
+     ;;    (semanticdb-enable-gnu-global-databases 'c-mode)
+     ;;    (semanticdb-enable-gnu-global-databases 'c++-mode))
+
+     ;; поддержка ctags для основных языков: unix shell, Perl, Pascal, Tcl, Frotran, Asm
+     ;;(when (cedet-ectag-version-check t)
+     ;;    (semantic-load-enable-primary-exuberent-ctags-support))
+
+     ;;строки выше закомментированы в силу того что пакет gnu global не настроен
+
+     ;;настройка EDE
+
+     (ede-cpp-root-project "Test"
+                           :name "Test Project"
+                           :file "~/EDE/CMakeLists.txt"
+                           :include-path '("/"
+                                           "/Common"
+                                           "/Interfaces"
+                                           "/Libs"
+                                           )
+                           :system-include-path '("~/exp/include")
+                           :spp-table '(("isUnix" . "")
+                                        ("BOOST_TEST_DYN_LINK" . "")))
+     ;;2015/03/20 -- 23:08
+     ;;вся проблема была в том, что в пути файла для :file была директория разделённая неэкранированным пробелом "Google drive". После перемещения в домашний каталог в папку EDE проблема самоустранилась
+
+   #+end_src
+
+** imenu
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     ;;Imenu -- навигация по функциям в различных языках программирования
+
+     (require 'imenu)
+     (setq imenu-auto-rescan           t) ;; автоматически обновлять список функций в буфере
+     (setq imenu-use-popup-menu      nil) ;; диалоги Imenu только в минибуфере
+     (global-set-key (kbd "<f6>") 'imenu) ;; вызов Imenu на F6
+   #+END_SRC
+
+** haskell-mode
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;;haskell-mode из официального репозитория
+
+     ;; установка хуков и включение режима автоматических отступов(identation mode)
+
+
+     (add-hook 'haskell-mode-hook 'turn-on-hi2)
+
+
+     (eval-after-load 'haskell-mode '(progn
+                                      (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
+                                      (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+                                      (define-key haskell-mode-map (kbd "C-c C-n C-t") 'haskell-process-do-type)
+                                      (define-key haskell-mode-map (kbd "C-c C-n C-i") 'haskell-process-do-info)
+                                      (define-key haskell-mode-map (kbd "C-c C-n C-c") 'haskell-process-cabal-build)
+                                      (define-key haskell-mode-map (kbd "C-c C-n c") 'haskell-process-cabal)
+                                      (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)))
+     (eval-after-load 'haskell-cabal '(progn
+                                       (define-key haskell-cabal-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+                                       (define-key haskell-cabal-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
+                                       (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
+                                       (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)))
+
+
+   #+end_src
+
+** org-mode
+*** основной режим org-mode
+
+    #+BEGIN_SRC elisp :tangle ~/.emacs
+      (require                           'org) ;; вызвать org-mode
+      (global-set-key "\C-ca"     'org-agenda) ;; установить клавиши вызова  агенды на C-c a
+      (global-set-key "\C-cb"   'org-iswitchb) ;; установить переключение между буферами emacs на C-c b
+      (global-set-key "\C-cd" 'org-store-link) ;; установить вызов глобального хранилища ссылок на C-c d
+      (global-set-key "\C-cL" 'org-insert-link-global);;[2015-09-24 Чт 21:29]
+      (global-set-key "\C-co" 'org-open-at-point-global);;[2015-09-24 Чт 21:29]
+      (add-to-list 'auto-mode-alist '("\\.org$" . org-mode)) ;; вызов org-mode автоматически при открытии файлов с расширением .org
+
+      ;;2015/03/31 -- 17:47
+
+      ;;(setq org-agenda-files (list "~/Dropbox/Org/todo/magisterium.org")) ;; указание агенде в каких файлах искать запланированные вещи.
+
+      ;;[2015-06-10 Ср 18:00]
+      (setq org-agenda-files (quote ("~/Dropbox/notes/org/"))) ;; указываем агенде, что все плановые файлы лежат в этой директории
+    #+END_SRC
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;;12/04/15 -- 17:27 настройки временного трекинга org-mode
+      (setq org-clock-persist 'history)
+      (org-clock-persistence-insinuate)
+      (setq org-log-done t) ;;устанавливает запись времени выполнения DONE автоматически без постоянного ползанья Org -> Logging work -> record DONE time
+
+      ;;03/05/2015 20:23
+      ;;(org-startup-with-inline-images t)
+      ;;(setq org-odt-category-map-alist
+      ;;(("__Figure__" "Illustration" "value" "Figure" org-odt--enumerable-image-p)))
+
+      ;;05/05/15 -- 05:45
+
+      (setq org-startup-with-inline-images t)
+      (add-hook 'org-mode-hook 'visual-line-mode) ;; [2015-10-04 Вс 11:53] отключаю вижуал лайн мод так как он ломает swiper для org-mode
+      ;;(setq org-src-fontify-natively 't) ;; подсветка синтаксиса исходных кодов
+      ;;вместо ломающей swiper visual-line-mode
+      ;;[2015-10-06 Вт 11:02] снова подключаю visual-mode-line так как ошибка была исправлена
+      (add-hook 'org-mode-hook (lambda () (setq truncate-lines t)))
+
+      ;;05/05/2015 -- 13:53
+      (org-babel-do-load-languages
+       (quote org-babel-load-languages)
+       (quote ((emacs-lisp . t)
+               (dot . t)
+               (ditaa . t)
+               (R . t)
+               (python . t)
+               (ruby . t)
+               (gnuplot . t)
+               (clojure . t)
+               (sh . t)
+               (ledger . t)
+               (org . t)
+               (plantuml . t)
+               (haskell . t)
+               (latex . t))))
+
+    #+end_src
+
+    [2015-09-02 Ср 22:10] При обновлении org-mode до версии 8.3 возникает проблема, о которой имакс сигнализирует сообщением /Invalid function: org-babel-header-args-safe-fn/. Как я узнал [[http://irreal.org/blog/?p%3D4295][из поста]], дело в поддержке языка R. Если закоментировать строку (R . t), то всё начинает работать. Но можно обойтись и без таких суровых мер оставаясь под сенью поддержки языка R оргмодом. Для этого необходимо перекомпилировать файл ob-R.el Делается это так M-x byte-compile-file ~/.emacs.d/elpa/org-20150831/ob-R.el
+*** дополнительные режимы org-mode
+
+    Помодоро -- инструмент контроля времени нагрузки. На практике, просто таймер отсчитывающий 25 минут для работы и 5 минут для отдыха. Делает соотвествующее тайм-отметки.
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;;17/04/2015 -- 22:00
+      ;;org-pomodoro
+      (require 'org-pomodoro)
+      (global-set-key (kbd "M-p") 'org-pomodoro)
+
+    #+end_src
+
+*** эксперименты с org-mode
+
+    По стопам [[http://www.wisdomandwonder.com/link/9858/you-probably-want-org-return-indent-bound-to-return][этой заметки]], я решил провести эксперимент
+
+    #+begin_src elisp :tangle ~/.emacs
+      (defun gcr/org-mode-hook ()
+             (local-set-key (kbd "<return>") 'org-return-indent))
+      (add-hook 'org-mode-hook 'gcr/org-mode-hook)
+    #+end_src
+
+    [2015-07-13 Пн 17:25]
+
+    Функция gcr/org-mode-hook позволяет получить отступ с "красной строки" при нажатии на энтер. Теперь не нужно долбить по tab.
+*** экспорт из org-mode
+
+    В силу того, что с организационной точки зрения латех-конструкции удобно выделить в отдельных орг-модовских заголовках, не экспортируя эти заголовки из-за их технического харрактера, с помощью тэга :prelim: можно указать какие содержимое каких заголовков необходимо учитывать, но не нужно экспортировать. Пользуюсь [[http://comments.gmane.org/gmane.emacs.orgmode/41582][следующей инструкцией]] для реализации данной схемы.
+
+    #+begin_src elisp
+      (defun my-org-export-remove-tagged-headlines (tag)
+        (save-excursion
+          (goto-char (point-min))
+          (while (re-search-forward (concat ":" tag ":") nil t)
+            (delete-region (point-at-bol) (point-at-eol)))))
+
+      (add-hook 'org-export-preprocess-hook (lambda () (my-org-export-remove-tagged-headlines "prelim")))
+    #+end_src
+
+    В силу того, что код выше не сработал [2015-09-26 Сб 00:32], воспользуюсь другим способом, описанном в том же треде
+
+    #+begin_src elisp :tangle ~/.emacs
+      (defun org-export-remove-prelim-headlines (tree backend info)
+        "Remove headlines tagged \"prelim\" while retaining their
+      contents before any export processing."
+        (org-element-map tree org-element-all-elements
+          (lambda (object)
+            (when (and (equal 'headline (org-element-type object))
+                       (member "prelim" (org-element-property :tags object)))
+              (mapc (lambda (el)
+                      ;; recursively promote all nested headlines
+                      (org-element-map el 'headline
+                        (lambda (el)
+                          (when (equal 'headline (org-element-type el))
+                            (org-element-put-property el
+                              :level (1- (org-element-property :level el))))))
+                      (org-element-insert-before el object))
+                    (cddr object))
+              (org-element-extract-element object)))
+          info nil org-element-all-elements)
+        tree)
+      (add-hook 'org-export-filter-parse-tree-functions 'org-export-remove-prelim-headlines)
+    #+end_src
+
+    Вышеописанный код рабочий[2015-09-26 Сб 01:40]
+
+    [2015-09-26 Сб 02:07] указание учитывать bibtex ссылки при конвертации в pdf. [[http://lists.gnu.org/archive/html/emacs-orgmode/2013-05/msg00791.html][Решение]] найдено по ссылке.
+
+    #+begin_src elisp :tangle ~/.emacs
+      (setq org-latex-pdf-process (quote ("texi2dvi --pdf --clean --verbose
+      --batch %f" "bibtex %b" "texi2dvi --pdf --clean --verbose --batch %f"
+      "texi2dvi --pdf --clean --verbose --batch %f")))
+    #+end_src
+
+*** вставки исходного кода
+
+**** функция обёртки выделенного текста в окружение begin end
+     :LOGBOOK:
+     CLOCK: [2015-10-04 Вс 06:38]--[2015-10-04 Вс 06:40] =>  0:02
+     :END:
+
+     Работаю [[http://pragmaticemacs.com/emacs/wrap-text-in-an-org-mode-block/][по рецепту]].
+
+     #+begin_src elisp :tangle ~/.emacs
+       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+       ;; function to wrap blocks of text in org templates                       ;;
+       ;; e.g. latex or src etc                                                  ;;
+       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+       [2015-10-04 Вс 06:40]
+
+       (defun org-begin-template ()
+         "Make a template at point."
+         (interactive)
+         (if (org-at-table-p)
+             (call-interactively 'org-table-rotate-recalc-marks)
+           (let* ((choices '(("s" . "SRC")
+                             ("e" . "EXAMPLE")
+                             ("q" . "QUOTE")
+                             ("v" . "VERSE")
+                             ("c" . "CENTER")
+                             ("l" . "LaTeX")
+                             ("h" . "HTML")
+                             ("a" . "ASCII")))
+                  (key
+                   (key-description
+                    (vector
+                     (read-key
+                      (concat (propertize "Template type: " 'face 'minibuffer-prompt)
+                              (mapconcat (lambda (choice)
+                                           (concat (propertize (car choice) 'face 'font-lock-type-face)
+                                                   ": "
+                                                   (cdr choice)))
+                                         choices
+                                         ", ")))))))
+             (let ((result (assoc key choices)))
+               (when result
+                 (let ((choice (cdr result)))
+                   (cond
+                    ((region-active-p)
+                     (let ((start (region-beginning))
+                           (end (region-end)))
+                       (goto-char end)
+                       (insert "#+END_" choice "\n")
+                       (goto-char start)
+                       (insert "#+BEGIN_" choice "\n")))
+                    (t
+                     (insert "#+BEGIN_" choice "\n")
+                     (save-excursion (insert "#+END_" choice))))))))))
+
+       ;;bind to key
+       (define-key org-mode-map (kbd "C-<") 'org-begin-template)
+     #+end_src
+** COMMENT ido
+
+   ido -- расширение для интерактивной работы с минибуфером. Это расширение выводит в минибуфер все потенциальные варианты(имён файлов, команд et cetera) содержащие введённе пользователем символы. Этакое автодополнение.
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     ;;интерактивный поиск и открытие файлов
+
+     (require 'ido)
+     (ido-mode                      t)
+     (icomplete-mode                t)
+     (ido-everywhere                t)
+     (setq ido-virtual-buffers      t)
+     (setq ido-enable-flex-matching t)
+   #+END_SRC
+
+** ibuffer
+
+   Расширение для интерактивной работы с буферами. По нажатии комбинации C-c C-b открывается отдельный буфер с режимом навроде файлового менеджера(типа midnight commander) только для буферов, а не файлов. Буферовый менеджер. Например, клавиша m выделяет буфер навроде клавиши ins, выделяющей файлы для совместных действий над всеми нименованиями в группе выделенных. Клавиша u снимает выделение. Комбинация S-d уничтожает все выделенные буферы. Et cetera.
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;; Buffer Selection and ibuffer settings
+     (require 'bs)
+     (require 'ibuffer)
+     (defalias 'list-buffers 'ibuffer) ;; отдельный список буферов при нажатии C-x C-b
+     (global-set-key (kbd "<f2>") 'bs-show) ;; запуск buffer selection кнопкой F2
+   #+end_src
+** fci-mode
+
+   Рисует линию по середине экрана. Назначение не понятно, но выглядит прикольно. Видел подобное в каких-то IDE.
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;;11/04/15 -- 04:25
+     (require 'fill-column-indicator) ;;запускается командой M-x fci-mode
+     (global-set-key (kbd "M-n") 'fci-mode)
+   #+end_src
+** gnuplot-mode
+
+   Режим работы emacs для знаменитого конструктора графиков
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;;18/04/2015 -- 21:19
+     ;;gnuplot-mode
+
+     (setq auto-mode-alist
+           (append '(("\\.\\(gp\\|gnuplot\\)$" . gnuplot-mode)) auto-mode-alist))
+
+   #+end_src
+
+** dired-subtree
+
+   Расширение, позволяющее в режиме dired организовывать просмотр файловой системы ввиде деревьев.
+
+   Настройка связок клавиш
+   #+begin_src elisp :tangle ~/.emacs
+     ;;23/04/15 21:15
+     ;;dired-subtree
+     (global-set-key (kbd "C-, C-i")  'dired-subtree-insert) ;;развернуть содержимое папки ввиде дерева
+     (global-set-key (kbd "C-, C-o") 'dired-subtree-remove) ;;свернуть содержимое папки
+
+   #+end_src
+** neotree
+
+   Расширение для интерактивного открытия файлов. В отдельном буфере с фиксированным положением слева, отображается содержимое файловой системы ввиде дерева. Перемещение производится стрелками. Сворачивание-разворачивание содержимого папки клавишей enter. Открытие файла -- клавишей enter.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (require 'neotree)
+     (global-set-key [f8] 'neotree-toggle)
+   #+end_src
+
+** multiple cursors
+
+   Режим множественных курсоров, повзоляющих выполнять однотипные действия на нескольких строках сразу же.
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;;[2015-06-06 Сб 21:08]
+     ;;multiple cursors
+
+     (global-set-key (kbd "C-c m c") 'mc/edit-lines)
+   #+end_src
+** Проверка правописания
+*** wcheck
+**** wcheck + hunspell
+
+     Следую указаниям [[http://ru-emacs.livejournal.com/85243.html][из статьи]] на пленет емаксен рус
+     Для того что бы этот спелчекинг заработал, необходимо предварительно установить в операционную систему утилиту проверки правописания enchant со словарями hunspell-en  и huspell-ru-aot. Первый и второй компонент устанавливается из официального репозитория, а третий из аур. Я установил его с помощью утилиты [[file:~/Dropbox/notes/org/scientia.org::*yaourt][yaourt]].
+     Для организации двуязычной проверки орфографии напишем скрипт, который будет сверять входной текст с русским словарём, а весь выходной подаваться на вход проверки с английским словарём.
+
+     Как следует из постановки задачи, алгоритм для её решения должен быть организован ввиде конвеера
+
+     #+BEGIN_SRC sh
+       #!/bin/bash
+       enchant -d ru_RU -l | enchant -d en_US -l
+     #+END_SRC
+
+     enchant может показывать варианты правильного написания ошибочного слова. Заскриптуем эту возможность для двуязычного ввода.
+
+     #+BEGIN_SRC sh
+       #! /bin/sh
+       read word;
+       echo $word |
+           if [[ $word =~ [a-zA-Z] ]]
+           then
+               enchant -d en_US -a
+           else
+               enchant -d ru_RU -a
+           fi
+
+     #+END_SRC
+
+     Скрипт определяет, есть ли в составе входного слова латинска буква, и в случае положительного решения, отправляет на  проверку с английским словарём, а в случае отрицательного, с русским.
+
+     Для совместной работы вышеопределённых скриптов с emacs нужно воспользоваться расширением wcheck-mode -- интерфейс для работы с различными проверяющими правописания.
+
+     elisp программу я полностью беру из статьи
+
+     #+begin_src elisp
+       (defvar lcl-var:spelling-ignore nil)
+
+       (defun lcl:spelling-add-to-dictionary (marked-text)
+         (let* ((word (downcase (aref marked-text 0)))
+                (dict (if (string-match "[a-zA-Z]" word)
+                          (message "en_US.dic")
+                        (message "ru_RU.dic")))
+                (file (concat "~/.config/enchant/" dict)))
+           (when (and file (file-writable-p file))
+             (with-temp-buffer
+               (insert word) (newline)
+               (append-to-file (point-min) (point-max) file)
+               (message "Added word \"%s\" to the \"%s\" dictionary" word dict))
+             (wcheck-mode 0)
+             (wcheck-mode 1))))
+
+       (defun lcl:spelling-add-to-ignore (marked-text)
+         (let ((word (aref marked-text 0)))
+           (add-to-list 'lcl-var:spelling-ignore word)
+           (message "Added word \"%s\" to the ignore list" word)
+           (wcheck--hook-outline-view-change)))
+
+       (defun lcl:spelling-action-menu (marked-text)
+         (append (wcheck-parser-ispell-suggestions)
+                 (list (cons "[Add to dictionary]" 'lcl:spelling-add-to-dictionary)
+                       (cons "[Ignore]" 'lcl:spelling-add-to-ignore))))
+
+       (defun lcl:delete-list (delete-list list)
+         (dolist (el delete-list)
+           (setq list (remove el list)))
+         list)
+
+       (defun lcl:spelling-parser-lines (&rest ignored)
+         (lcl:delete-list lcl-var:spelling-ignore
+                          (delete-dups
+                           (split-string
+                            (buffer-substring-no-properties (point-min) (point-max))
+                            "\n+" t))))
+
+       (defun cfg:spelling ()
+         (require 'wcheck-mode)
+         (defun wcheck--choose-action-minibuffer (actions)
+           (cdr
+            (assoc
+             (ido-completing-read "Choose " (mapcar #'car actions))
+             actions)))
+         (setq-default
+          wcheck-language "All"
+          wcheck-language-data
+          '(("All"
+             (program . "~/.emacs.d/enchant-spellcheck/st.sh")
+             (parser . lcl:spelling-parser-lines)
+             (action-program . "~/.emacs.d/enchant-spellcheck/sd.sh")
+             (action-parser . lcl:spelling-action-menu)
+             (read-or-skip-faces
+              ((emacs-lisp-mode c-mode c++-mode python-mode)
+               read font-lock-comment-face)
+              (org-mode
+               skip org-block-begin-line org-block-end-line org-meta-line org-link)
+              (nil))
+             ))))
+       (cfg:spelling)
+     #+end_src
+
+***** исправление неполадок
+
+****** wcheck-mode
+
+       Так как настроить свзяку вчека и ханспела [[wcheck%20%2B%20hunspell][по указанной инструкции]] у меня не получилось ввиду того, как я думаю, неопнимания механики работы этого интерфейса правописания, преведшего к ошибкам в оформлении кода, я попытаюсь настроить wcheck [[https://github.com/tlikonen/wcheck-mode][по инструкции с репа]] на гитхабе.
+
+       #+begin_src elisp
+         (setq wcheck-language-data
+               '(("British English"
+                 (program . "/usr/bin/enchant")
+                 (args "-l" "-d" "en_GB")
+                 (action-program . "/usr/bin/enchant")
+                 (action-args "-a" "-d" "en_GB")
+                 (action-parser . enchant-suggestions-menu)
+                 )))
+         (setq wcheck-language "British English")
+       #+end_src
+
+       Собственно настройка вчека по инструкции стработала как надо. Поэтому перехожу к следующему пункту двуязычной настройки.
+
+****** enchant + wcheck
+       Предыдущая настройка сработала. А значит дело не в неправильном применение конфигурирующего кода, а в самом коде. Но, так как у товарища поделившегося с миром этим секретом, всё работает, я делаю вывод что ошибка возникает из-за разницы в наших конфигурациях. Я предполагаю следующие причины
+
+       1. python-mode(его у меня нет) -- дело не в нём
+       2. переопределение функции wcheck--choose-action-minibuffer -- и не в ней
+
+          #+begin_src elisp :tangle ~/.emacs
+            (defvar lcl-var:spelling-ignore nil)
+
+            (defun lcl:spelling-add-to-dictionary (marked-text)
+              (let* ((word (downcase (aref marked-text 0)))
+                     (dict (if (string-match "[a-zA-Z]" word)
+                               (message "en_US.dic")
+                             (message "ru_RU.dic")))
+                     (file (concat "~/.config/enchant/" dict)))
+                (when (and file (file-writable-p file))
+                  (with-temp-buffer
+                    (insert word) (newline)
+                    (append-to-file (point-min) (point-max) file)
+                    (message "Added word \"%s\" to the \"%s\" dictionary" word dict))
+                  (wcheck-mode 0)
+                  (wcheck-mode 1))))
+
+            (defun lcl:spelling-add-to-ignore (marked-text)
+              (let ((word (aref marked-text 0)))
+                (add-to-list 'lcl-var:spelling-ignore word)
+                (message "Added word \"%s\" to the ignore list" word)
+                (wcheck--hook-outline-view-change)))
+
+            (defun lcl:spelling-action-menu (marked-text)
+              (append (wcheck-parser-ispell-suggestions)
+                      (list (cons "[Add to dictionary]" 'lcl:spelling-add-to-dictionary)
+                            (cons "[Ignore]" 'lcl:spelling-add-to-ignore))))
+
+            (defun lcl:delete-list (delete-list list)
+              (dolist (el delete-list)
+                (setq list (remove el list)))
+              list)
+
+            (defun lcl:spelling-parser-lines (&rest ignored)
+              (lcl:delete-list lcl-var:spelling-ignore
+                               (delete-dups
+                                (split-string
+                                 (buffer-substring-no-properties (point-min) (point-max))
+                                 "\n+" t))))
+
+            (defun cfg:spelling ()
+              (require 'wcheck-mode)
+              (setq-default
+               wcheck-language "All"
+               wcheck-language-data
+               '(("All"
+                  (program . "~/.emacs.d/enchant-spellcheck/st.sh")
+                  (parser . lcl:spelling-parser-lines)
+                  (action-program . "~/.emacs.d/enchant-spellcheck/sd.sh")
+                  (action-parser . lcl:spelling-action-menu)
+                  (read-or-skip-faces
+                   ((emacs-lisp-mode)
+                    read font-lock-comment-face)
+                   (org-mode
+                    skip org-block-begin-line org-block-end-line org-meta-line org-link)
+                   (nil))
+                  ))))
+            (cfg:spelling)
+          #+end_src
+
+          дело оказалось в имени скрипта ~/.emacs.d/enchant-spellcheck/spell_check_text.sh. Толи слишком длинно, толи подчёркивания не нравятся. Однако при замене spell_check_text.sh на st.sh проблема исчезла.
+
+**** wcheck hotkey's
+
+     Так как горячие клавиши будут актуальны при любой настройке, вынесу их как элемент поддающийся обощению над мноэеством конфигураций wcheck-mode
+
+     #+begin_src elisp :tangle ~/.emacs
+       (global-set-key (kbd "C-c s") 'wcheck-mode)
+       (global-set-key (kbd "C-c l") 'wcheck-change-language)
+       (global-set-key (kbd "C-c c") 'wcheck-actions) ;; открывает лист вариантов правильного на взгляд орфографиста написания
+       (global-set-key (kbd "C-c n") 'wcheck-jump-forward)
+       (global-set-key (kbd "C-c p") 'wcheck-jump-backward)
+     #+end_src
+** window-numbering
+
+   Плагин для быстрого перемещения между окнами. Окна атоматически нумеруются и по номерам формируются горячие клавиши вида M-1 M-2 et cetera. Для инициализации расширения в файл конфигурации добавляется следующее заклинание
+
+   #+begin_src elisp :tangle ~/.emacs
+     (window-numbering-mode t)
+   #+end_src
+
+   Стоит отметить, что под окнами подразумеваются вовсе не фрйемы, а области, в которых отображается содержимое буферов. В целом, довольно комфортное переключение между окнами было реализовано через сочетание M-rightarrow и M-leftarrow. Однако, это расширение более удобно для переключения между множествынными окнами, т.к. не требует последовательного перещёлкивания через каждое, а позволяет перейти к нужному окну под определённым номером сразу же.
+
+   Знание об этом пришло ко мне через [[http://reangdblog.blogspot.com/2015/05/emacs_31.html][статью]].
+** undo-tree
+   CLOCK: [2015-07-09 Чт 13:49]--[2015-07-09 Чт 13:57] =>  0:08
+   CLOCK: [2015-07-09 Чт 13:37]--[2015-07-09 Чт 13:45] =>  0:08
+   CLOCK: [2015-07-09 Чт 13:32]--[2015-07-09 Чт 13:34] =>  0:02
+
+   Настраиваю визуализацию отмены действий в виде дерева с помощью расширения с говорящим именем undo-tree, руководствуясь [[http://pragmaticemacs.com/emacs/advanced-undoredo-with-undo-tree/][указаниями]] с пленет имаксен.
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;;включение глобального undo-tree мода
+     (global-undo-tree-mode 1)
+     ;;связка "отмены" с комбинацией C-z
+     (global-set-key (kbd "C-z") 'undo)
+     ;;переопределение команды "возврата" в терминах нового расширения
+     (defalias 'redo 'undo-tree-redo)
+     ;;связывание нового "возврата" с комбинацией C-S-z
+     (global-set-key (kbd "C-S-z") 'redo)
+   #+end_src
+
+   Теперь отмена осуществляется по нажатию C-z, а возврат по нажатию C-Z
+   Комбинация C-x u вызывает дерево отмены в отдельном буфере. Перемещаясь с помощью обычных навигационных стрелок по листам дерева, можно наблюдать в основном буфере состояние соответствующее положению на листе дерева отмены. Очень удобно.
+** ztree
+   CLOCK: [2015-07-09 Чт 14:40]--[2015-07-09 Чт 14:41] =>  0:01
+   CLOCK: [2015-07-09 Чт 14:12]--[2015-07-09 Чт 14:20] =>  0:08
+
+   Интересное расширение позволяющее визуализировать в виде дерева пока не понял что. Наткнулся случайно просматривая список пакетов из мелпы по ключевому слову tree. [[https://github.com/fourier/ztree][Официальный гит-репозиторий]] проекта.
+
+   Действую согласно инструкции с того же гита.
+   Визуализирует каталоги с подкаталогами в виде дерева, позволяет проводить манипуляции. Может сравнивать каталоги на предмет разницы или совпадения состава.
+** hydra
+
+   Расширение, позволяющее использовать краткие сочетания горячих клавиш.
+   Например, сочетание клавиш используемое совместно с гидрой
+   С-с jjkk3j5k эквивалентно сочетанию C-c j C-c j C-c k C-c k M-3 C-c j M-5 C-c k, но без гидры.
+
+   [[https://github.com/abo-abo/hydra][Официальный гит-репозиторий гидры]].
+** smart-mode-line
+
+   Изящный способ разукрасить строку состояния имакс в приятные глазу цвета! Я частенько замечал "красивую строку" во многих видосах по имакс и вот наконец разобрался как сделать так же у себя. смартмодлайн более информативна и добавляет возможность изменять размер и перелистывать буферы мышкой.[2015-08-18 Вт 23:24]
+
+   #+begin_src elisp :tangle ~/.emacs
+     (setq sml/theme 'powerline)
+     (sml/setup) ;;инициализация smart-mode-line
+   #+end_src
+
+** calfw
+   :LOGBOOK:
+   CLOCK: [2015-09-07 Пн 22:10]--[2015-09-07 Пн 22:37] =>  0:27
+   :END:
+
+   Няшный календарь.
+   [[https://github.com/kiwanami/emacs-calfw][Страница на гитхабе]]
+
+   #+begin_src elisp :tangle ~/.emacs
+     (require 'calfw-org)
+   #+end_src
+** paradox
+   :LOGBOOK:
+   CLOCK: [2015-09-08 Вт 11:00]--[2015-09-08 Вт 11:02] =>  0:02
+   :END:
+
+   Функционально расширенный менеджер пакетов для имакс. [[https://github.com/Malabarba/paradox/][Страница]] расширения на гитхабе.
+   #+begin_src elisp :tangle ~/.emacs
+     ;;paradox
+     ;;[2015-10-08 Чт 11:14]
+     ;;указание не использовать гитхаб репозиторий
+     (custom-set-variables '(paradox-github-token t))
+   #+end_src
+** ace-window
+   :LOGBOOK:
+   CLOCK: [2015-09-10 Чт 21:48]--[2015-09-10 Чт 21:49] =>  0:01
+   CLOCK: [2015-09-10 Чт 21:38]--[2015-09-10 Чт 21:42] =>  0:04
+   :END:
+
+   Расширение для переключения между окнами. Для каждого окна назначается цифра, нажимая которую можно попасть в это окно. Отображение цифр производится после нажатия комбинации M-s M-a.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (global-set-key (kbd "M-s M-a") 'ace-window)
+   #+end_src
+
+** ensime
+
+   ENSIME (ENhanced Scala Interaction Mode for Emacs)
+
+   #+begin_src elisp :tangle ~/.emacs
+     (require 'ensime)
+     (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
+   #+end_src
+
+** page-break-line
+   :LOGBOOK:
+   CLOCK: [2015-09-18 Пт 12:56]--[2015-09-18 Пт 13:29] =>  0:33
+   :END:
+
+   Расширение для индикации разрывов страниц, обозначаемых символом ^L
+   Этот символ можно вывести в буфер комбинацией C-q C-l 
+
+   #+begin_src elisp :tangle ~/.emacs
+     (global-page-break-lines-mode t)
+   #+end_src
+
+** browse-kill-ring
+   :LOGBOOK:
+   CLOCK: [2015-09-20 Вс 16:13]--[2015-09-20 Вс 17:12] =>  0:59
+   :END:
+
+   #+begin_src elisp :tangle ~/.emacs
+     (global-set-key "\C-cy" 'browse-kill-ring)
+   #+end_src
+
+** avy
+   :LOGBOOK:
+   CLOCK: [2015-09-20 Вс 17:12]--[2015-09-20 Вс 19:07] =>  1:55
+   :END:
+
+   #+begin_src elisp :tangle ~/.emacs
+     (global-set-key (kbd "C-:") 'avy-goto-char)
+     (global-set-key (kbd "C-'") 'avy-goto-char-2)
+     (global-set-key (kbd "M-g f") 'avy-goto-line)
+     (global-set-key (kbd "M-g w") 'avy-goto-word-1)
+     (global-set-key (kbd "M-g e") 'avy-goto-word-0)
+     (global-set-key (kbd "M-g t") 'avy-goto-char-timer)
+   #+end_src
+
+   [2015-09-23 Ср 13:26] Опцию 'avy-goto-char-timer подсмотрел по [[https://tsdh.wordpress.com/2015/09/17/improving-avy-goto-char-timer/][ссылке]]. В той же статье рассматривается как изменить интервал таймера ввода.
+** bookmark plus
+   :LOGBOOK:
+   CLOCK: [2015-09-21 Пн 13:07]--[2015-09-21 Пн 13:08] =>  0:01
+   :END:
+
+   Дополнение к стандартной библиотеке закладок имакс.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (require 'bookmark+)
+   #+end_src
+** COMMENT org-screnshot
+   :LOGBOOK:
+   CLOCK: [2015-09-23 Ср 19:30]--[2015-09-23 Ср 20:22] =>  0:52
+   CLOCK: [2015-09-23 Ср 19:15]--[2015-09-23 Ср 19:26] =>  0:11
+   :END:
+
+   #+begin_src elisp :tangle ~/.emacs
+     (require 'org-screenshot)
+     (setq org-screenshot-command-line "scrot -s")
+   #+end_src
+** ivy
+
+   Весьма функциональное расширение, которое представляет работу автодополнения в минибуфере ввиде списка с позициями, по которому можно перемещаться с помощью курсора. Например, при вводе команды M-x, или поиска по регвыру et cetera.
+   #+begin_src elisp :tangle ~/.emacs
+     (ivy-mode 1)
+     (setq ivy-use-virtual-buffers t)
+     (global-set-key "\C-s" 'swiper)
+     (global-set-key "\C-r" 'swiper)
+     ;;(global-set-key (kbd "C-c C-r") 'ivy-resume)
+     (global-set-key [f7] 'ivy-resume)
+   #+end_src
+
+   #+begin_src elisp :tangle ~/.emacs
+     (setq ivy-display-style 'fancy)
+   #+end_src
+
+   #+begin_src elisp :tangle ~/.emacs
+     (global-set-key (kbd "C-M-q") 'ora-unfill-paragraph)
+
+     (defun ora-unfill-paragraph ()
+       "Transform a paragraph into a single line."
+       (interactive)
+       (let ((fill-column (point-max)))
+         (fill-paragraph nil t)))
+   #+end_src
+** org-ref
+   :LOGBOOK:
+   CLOCK: [2015-09-25 Пт 21:44]--[2015-09-25 Пт 21:51] =>  0:07
+   CLOCK: [2015-09-25 Пт 16:31]--[2015-09-25 Пт 16:43] =>  0:12
+   CLOCK: [2015-09-25 Пт 16:08]--[2015-09-25 Пт 16:16] =>  0:08
+   :END:
+
+   Многофункциональная библиотека для работы с библиографическими ссылками в орг-мод. Так как Джону Китчину пока что не удалось продвинуть этот пакет в melpa, то для установки необходимо скопировать [[https://github.com/jkitchin/org-ref][гит-папку org-ref]](я скопировал в имакс [[file:~/.emacs.d/org-ref][папку]]).
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;;initialize org-ref
+     (add-to-list 'load-path "~/.emacs.d/org-ref")
+     ;; make sure you have dash, helm, helm-bibtex, ebib, s, f, hydra and key-chord
+     ;; in your load-path
+     (require 'org-ref)
+   #+end_src
+
+   Указание местоположения библиографий.
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;;bibliography
+
+     (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
+
+     ;; see org-ref for use of these variables
+     (setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
+           org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
+           org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
+
+   #+end_src
+
+   Параметры для helm
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;; *** helm-bibtex
+
+     (setq helm-bibtex-bibliography "~/Dropbox/bibliography/references.bib")
+     (setq helm-bibtex-library-path "~/Dropbox/bibliography/bibtex-pdfs")
+     (setq helm-bibtex-notes-path "~/Dropbox/bibliography/helm-bibtex-notes")
+   #+end_src
+
+   Горячие клавиши
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;;key for bibtex
+
+     (global-set-key (kbd "<f1> 1") 'org-ref-open-bibtex-notes)
+     (global-set-key (kbd "<f1> 2") 'org-ref-open-bibtex-pdf)
+     (global-set-key (kbd "<f1> 3") 'org-ref-open-in-browser)
+
+   #+end_src
+
+   Просмотр pdf средствами системного вьюера
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;; open pdf with system pdf viewer (works on mac)
+     (setq helm-bibtex-pdf-open-function
+       (lambda (fpath)
+         (start-process "open" "*open*" "open" fpath)))
+
+     ;; alternative
+     ;; (setq helm-bibtex-pdf-open-function 'org-open-file)
+   #+end_src
+
+   Подключение дополнительных библиотек
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;; optional but very useful libraries in org-ref
+     (require 'doi-utils)
+     (require 'jmax-bibtex)
+     (require 'pubmed)
+     (require 'arxiv)
+     (require 'sci-id)
+
+   #+end_src
+** rainbow delimiters
+   :LOGBOOK:
+   CLOCK: [2015-10-04 Вс 08:51]--[2015-10-04 Вс 08:53] =>  0:02
+   :END:
+   Расширение, которое раскрашивает скобки одинакового уровня вложенности в один цвет.
+
+   #+begin_src elisp :tangle ~/.emacs
+     ;;указание запускать радужные разделители глобально
+     ;;[2015-10-04 Вс 08:53]
+     (require 'rainbow-delimiters)
+     ;;(global-rainbow-delimiters-mode)
+     ;;настройка цвета скобок
+     (custom-set-faces
+      ;; custom-set-faces was added by Custom.
+      ;; If you edit it by hand, you could mess it up, so be careful.
+      ;; Your init file should contain only one such instance.
+      ;; If there is more than one, they won't work right.
+      '(default ((t (:inherit nil :stipple nil :background "#2B2B2B" :foreground "#a9b7c6" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Terminus"))))
+      '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
+      '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
+      '(rainbow-delimiters-depth-4-face ((t (:foreground "chartreuse"))))
+      '(rainbow-delimiters-depth-5-face ((t (:foreground "spring green"))))
+      '(rainbow-delimiters-depth-6-face ((t (:foreground "cyan"))))
+      '(rainbow-delimiters-depth-7-face ((t (:foreground "deep sky blue"))))
+      '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
+      '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
+   #+end_src
+
+   [2015-10-08 Чт 13:01] Глобализация радужных скобок [[*subword(вкл)][по примеру]] subword'а
+
+   #+begin_src elisp :tangle ~/.emacs
+     (defun turn-on-rainbow-delimeters-mode ()
+               (interactive)
+               (rainbow-delimiters-mode t))
+     (define-globalized-minor-mode global-rainbow-delimeters-mode rainbow-delimiters-mode turn-on-rainbow-delimeters-mode)
+     (add-hook 'buffer-list-update-hook 'global-rainbow-delimeters-mode)
+   #+end_src
+** perspective
+   :LOGBOOK:
+   CLOCK: [2015-10-08 Чт 12:56]--[2015-10-08 Чт 13:00] =>  0:04
+   :END:
+
+   Пакет для организации workspace'ов
+
+   #+begin_src elisp :tangle ~/.emacs
+     (require 'perspective)
+     (persp-mode)
+   #+end_src
+
+** tiny
+   :LOGBOOK:
+   CLOCK: [2015-10-21 Ср 20:07]--[2015-10-21 Ср 21:20] =>  1:13
+   CLOCK: [2015-10-21 Ср 19:30]--[2015-10-21 Ср 19:52] =>  0:22
+   CLOCK: [2015-10-21 Ср 19:25]--[2015-10-21 Ср 19:29] =>  0:04
+   :END:
+
+   tiny -- расширение от автора swiper, hydra et cetera для работы с числовыми клавиатурными макросами
+
+   [[https://github.com/abo-abo/tiny][гитхаб расширения]].
+
+   Веду настройку на основании следующей [[http://ericjmritz.name/2015/07/08/emacs-formatting-integer-ranges-with-tiny/][статьи]].
+
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package tiny
+                  :config
+                  (global-set-key (kbd "C-c M-m") 'tiny-expand))
+
+   #+end_src
+
+** wrap-region
+   :LOGBOOK:
+   CLOCK: [2015-10-22 Чт 15:14]
+   :END:
+
+   Использую [[http://pragmaticemacs.com/emacs/wrap-text-in-custom-characters/][это расширение по рецепту]]
+
+   Позволяет создать окружение из указанных символов выделяя нужную фразу и нажимая на символ обёртки.
+   #+begin_src elisp :tangle ~/.emacs
+   ;; [2015-10-22 Чт 15:17]
+   ;; wrap-region
+     (use-package wrap-region
+       :ensure t
+       :config
+       (wrap-region-add-wrappers
+        '(("*" "*" nil org-mode)
+          ("~" "~" nil org-mode)
+          ("/" "/" nil org-mode)
+          ("=" "=" "+" org-mode)
+          ("_" "_" nil org-mode)
+          ("$" "$" nil (org-mode latex-mode))))
+       (add-hook 'org-mode-hook 'wrap-region-mode)
+       (add-hook 'latex-mode-hook 'wrap-region-mode))
+   #+end_src
