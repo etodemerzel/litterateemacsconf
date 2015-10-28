@@ -312,63 +312,6 @@
    #+begin_src elisp :tangle ~/.emacs
      (fset 'yes-or-no-p 'y-or-n-p)
    #+end_src
-** Тема оформления и шрифт
-
-   Лучше всего настраивать цветовую тему и шрифты средствами самого emacs. Но чтобы у меня не произошёл сброс этих настроек при обновлении файла конфигурации, я занесу под этим заголовком копипасту настроек из старого конф. файла. Тангл той или цветовой схемы необходимо отключить в зависимости от компьютера, на котором происходит экспорт.
-   [2015-09-23 Ср 17:53] Нашёл способ средствами самого имакс регулировать экспорт кода на разных машинах. Этиим средствами являются закомментариевание по комбинации C-; . При работе на demerzeil'е будет закоменчен Omnius, при работе на Omnius будет закоменчен demerzeil.
-*** Конфигурация цветовой схемы(и шрифта) для Omnius
-
-    #+begin_src elisp :tangle ~/.emacs
-      (custom-set-variables
-       ;; custom-set-variables was added by Custom.
-       ;; If you edit it by hand, you could mess it up, so be careful.
-       ;; Your init file should contain only one such instance.
-       ;; If there is more than one, they won't work right.
-       '(custom-enabled-themes (quote (darcula)))
-       '(custom-safe-themes
-         (quote
-          ("8a5861643f5e45af35651e1aaa2be7849f215b7e2a9bb14928f44033354153ae" default))))
-      (custom-set-faces
-       ;; custom-set-faces was added by Custom.
-       ;; If you edit it by hand, you could mess it up, so be careful.
-       ;; Your init file should contain only one such instance.
-       ;; If there is more than one, they won't work right.
-       '(default ((t (:inherit nil :stipple nil :background "#2B2B2B" :foreground "#a9b7c6" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Terminus")))))
-
-    #+end_src
-*** COMMENT Конфигурация цветовой схемы(и шрифта) для demerzeil
-
-    #+BEGIN_SRC elisp :tangle ~/.emacs
-      ;;[2015-06-15 Пн 05:23]
-      ;;цветовая схема
-
-      (custom-set-variables
-       ;; custom-set-variables was added by Custom.
-       ;; If you edit it by hand, you could mess it up, so be careful.
-       ;; Your init file should contain only one such instance.
-       ;; If there is more than one, they won't work right.
-       '(custom-enabled-themes (quote (warm-night)))
-       '(custom-safe-themes
-         (quote
-          ("ac2b1fed9c0f0190045359327e963ddad250e131fbf332e80d371b2e1dbc1dc4" default))))
-      (custom-set-faces
-       ;; custom-set-faces was added by Custom.
-       ;; If you edit it by hand, you could mess it up, so be careful.
-       ;; Your init file should contain only one such instance.
-       ;; If there is more than one, they won't work right.
-       '(default ((t (:inherit nil :stipple nil :background "#292424" :foreground "#b1b1b1" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 105 :width normal :foundry "xos4" :family "Terminus "))))
-       '(cursor ((t (:background "dark orange")))))
-      (put 'narrow-to-region 'disabled nil)
-    #+END_SRC
-*** COMMENT Тема cyberpunk
-
-    #+begin_src elisp :tangle ~/.emacs
-      (use-package cyberpunk-theme
-          :ensure t
-          :init
-          (load-theme 'cyberpunk t))
-    #+end_src
-
 * Расширения
 ** auto-complete
 
@@ -1420,25 +1363,10 @@
      ;;[2015-10-04 Вс 08:53]
      (require 'rainbow-delimiters)
      ;;(global-rainbow-delimiters-mode)
-     ;;настройка цвета скобок
-     (custom-set-faces
-      ;; custom-set-faces was added by Custom.
-      ;; If you edit it by hand, you could mess it up, so be careful.
-      ;; Your init file should contain only one such instance.
-      ;; If there is more than one, they won't work right.
-      '(default ((t (:inherit nil :stipple nil :background "#2B2B2B" :foreground "#a9b7c6" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Terminus"))))
-      '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
-      '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
-      '(rainbow-delimiters-depth-4-face ((t (:foreground "chartreuse"))))
-      '(rainbow-delimiters-depth-5-face ((t (:foreground "spring green"))))
-      '(rainbow-delimiters-depth-6-face ((t (:foreground "cyan"))))
-      '(rainbow-delimiters-depth-7-face ((t (:foreground "deep sky blue"))))
-      '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
-      '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
    #+end_src
 
    [2015-10-08 Чт 13:01] Глобализация радужных скобок [[*subword(вкл)][по примеру]] subword'а
-
+   [2015-10-28 Ср 19:17] В конфигурацию радужных скобок забрался шрифт в силу механического копипаста из предыдущего файла конфигурации. Исправлено.
    #+begin_src elisp :tangle ~/.emacs
      (defun turn-on-rainbow-delimeters-mode ()
                (interactive)
@@ -1479,9 +1407,6 @@
    #+end_src
 
 ** wrap-region
-   :LOGBOOK:
-   CLOCK: [2015-10-22 Чт 15:14]
-   :END:
 
    Использую [[http://pragmaticemacs.com/emacs/wrap-text-in-custom-characters/][это расширение по рецепту]]
 
@@ -1502,3 +1427,96 @@
        (add-hook 'org-mode-hook 'wrap-region-mode)
        (add-hook 'latex-mode-hook 'wrap-region-mode))
    #+end_src
+* Тема оформления и шрифт
+
+  Лучше всего настраивать цветовую тему и шрифты средствами самого emacs. Но чтобы у меня не произошёл сброс этих настроек при обновлении файла конфигурации, я занесу под этим заголовком копипасту настроек из старого конф. файла. Тангл той или цветовой схемы необходимо отключить в зависимости от компьютера, на котором происходит экспорт.
+  [2015-09-23 Ср 17:53] Нашёл способ средствами самого имакс регулировать экспорт кода на разных машинах. Этиим средствами являются закомментариевание по комбинации C-; . При работе на demerzeil'е будет закоменчен Omnius, при работе на Omnius будет закоменчен demerzeil.
+  [2015-10-28 Ср 19:35] Перенёс часть, отвечающую за настроку внешнего вида вниз, в силу разнородности затрагиваемых настроек от самого имакса до расширений(rainbow-delimeters) в самый низ. А разбить настройки на нужное число частей не получится в силу того, что часть кода с custom-set-face должна быть для корректности только одна.
+** darcula + terminus
+   :LOGBOOK:
+   CLOCK: [2015-10-28 Ср 19:12]--[2015-10-28 Ср 19:23] =>  0:11
+   CLOCK: [2015-10-28 Ср 19:12]--[2015-10-28 Ср 19:12] =>  0:00
+   :END:
+
+   Указываю расширению use-package загрузить из репозитория и устанавить в качестве темы оформления тему darcula
+
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package darcula-theme
+         :ensure t
+         :init
+         (load-theme 'darcula t))
+   #+end_src
+
+
+   #+begin_src elisp :tangle ~/.emacs
+     (custom-set-faces
+      ;; custom-set-faces was added by Custom.
+      ;; If you edit it by hand, you could mess it up, so be careful.
+      ;; Your init file should contain only one such instance.
+      ;; If there is more than one, they won't work right.
+      ;;параметр настройки шрифта -- Terminus, и прочих параметров set-default-face'а
+      '(default ((t (:inherit nil :stipple nil :background "#2B2B2B" :foreground "#a9b7c6" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Terminus"))))
+      ;;настройка цвета скобок расширения rainbow-delimeters
+      '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
+      '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
+      '(rainbow-delimiters-depth-4-face ((t (:foreground "chartreuse"))))
+      '(rainbow-delimiters-depth-5-face ((t (:foreground "spring green"))))
+      '(rainbow-delimiters-depth-6-face ((t (:foreground "cyan"))))
+      '(rainbow-delimiters-depth-7-face ((t (:foreground "deep sky blue"))))
+      '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
+      '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
+   #+end_src
+   В силу того, что блок кода set-customize-face
+** archive
+*** COMMENT Конфигурация цветовой схемы(и шрифта) для Omnius
+
+    #+begin_src elisp :tangle ~/.emacs
+      (custom-set-variables
+       ;; custom-set-variables was added by Custom.
+       ;; If you edit it by hand, you could mess it up, so be careful.
+       ;; Your init file should contain only one such instance.
+       ;; If there is more than one, they won't work right.
+       '(custom-enabled-themes (quote (darcula)))
+       '(custom-safe-themes
+         (quote
+          ("8a5861643f5e45af35651e1aaa2be7849f215b7e2a9bb14928f44033354153ae" default))))
+      (custom-set-faces
+       ;; custom-set-faces was added by Custom.
+       ;; If you edit it by hand, you could mess it up, so be careful.
+       ;; Your init file should contain only one such instance.
+       ;; If there is more than one, they won't work right.
+       '(default ((t (:inherit nil :stipple nil :background "#2B2B2B" :foreground "#a9b7c6" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Terminus")))))
+
+    #+end_src
+*** COMMENT Конфигурация цветовой схемы(и шрифта) для demerzeil
+
+    #+BEGIN_SRC elisp :tangle ~/.emacs
+      ;;[2015-06-15 Пн 05:23]
+      ;;цветовая схема
+
+      (custom-set-variables
+       ;; custom-set-variables was added by Custom.
+       ;; If you edit it by hand, you could mess it up, so be careful.
+       ;; Your init file should contain only one such instance.
+       ;; If there is more than one, they won't work right.
+       '(custom-enabled-themes (quote (warm-night)))
+       '(custom-safe-themes
+         (quote
+          ("ac2b1fed9c0f0190045359327e963ddad250e131fbf332e80d371b2e1dbc1dc4" default))))
+      (custom-set-faces
+       ;; custom-set-faces was added by Custom.
+       ;; If you edit it by hand, you could mess it up, so be careful.
+       ;; Your init file should contain only one such instance.
+       ;; If there is more than one, they won't work right.
+       '(default ((t (:inherit nil :stipple nil :background "#292424" :foreground "#b1b1b1" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 105 :width normal :foundry "xos4" :family "Terminus "))))
+       '(cursor ((t (:background "dark orange")))))
+      (put 'narrow-to-region 'disabled nil)
+    #+END_SRC
+*** COMMENT Тема cyberpunk
+
+    #+begin_src elisp :tangle ~/.emacs
+      (use-package cyberpunk-theme
+          :ensure t
+          :init
+          (load-theme 'cyberpunk t))
+    #+end_src
