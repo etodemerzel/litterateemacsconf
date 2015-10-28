@@ -1434,6 +1434,7 @@
   [2015-10-28 Ср 19:35] Перенёс часть, отвечающую за настроку внешнего вида вниз, в силу разнородности затрагиваемых настроек от самого имакса до расширений(rainbow-delimeters) в самый низ. А разбить настройки на нужное число частей не получится в силу того, что часть кода с custom-set-face должна быть для корректности только одна.
 ** darcula + terminus
    :LOGBOOK:
+   CLOCK: [2015-10-28 Ср 19:54]--[2015-10-28 Ср 19:54] =>  0:00
    CLOCK: [2015-10-28 Ср 19:12]--[2015-10-28 Ср 19:23] =>  0:11
    CLOCK: [2015-10-28 Ср 19:12]--[2015-10-28 Ср 19:12] =>  0:00
    :END:
@@ -1447,6 +1448,7 @@
          (load-theme 'darcula t))
    #+end_src
 
+   Так как настройки шрифта зависят от настроек цветовой схемы, приходится настраивать их одновременно.
 
    #+begin_src elisp :tangle ~/.emacs
      (custom-set-faces
@@ -1466,7 +1468,42 @@
       '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
       '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
    #+end_src
-   В силу того, что блок кода set-customize-face
+** COMMENT warm-night + модификация курсора + terminus
+   :LOGBOOK:
+   CLOCK: [2015-10-28 Ср 19:58]
+   :END:
+
+   Загрузка и установка темы warm-night с помощью расширения use-package
+
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package warm-night-theme
+         :ensure t
+         :init
+         (load-theme 'warm-night t))
+   #+end_src
+
+   Установка шрифта и цвета скобок rainbow-delimeters
+
+   #+begin_src elisp :tangle ~/.emacs
+     (custom-set-faces
+           ;; custom-set-faces was added by Custom.
+           ;; If you edit it by hand, you could mess it up, so be careful.
+           ;; Your init file should contain only one such instance.
+           ;; If there is more than one, they won't work right.
+           ;;параметр настройки шрифта -- Terminus, и прочих параметров set-default-face'а
+      '(default ((t (:inherit nil :stipple nil :background "#292424" :foreground "#b1b1b1" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 105 :width normal :foundry "xos4" :family "Terminus "))))
+            '(cursor ((t (:background "dark orange"))))
+           ;;настройка цвета скобок расширения rainbow-delimeters
+           '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
+           '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
+           '(rainbow-delimiters-depth-4-face ((t (:foreground "chartreuse"))))
+           '(rainbow-delimiters-depth-5-face ((t (:foreground "spring green"))))
+           '(rainbow-delimiters-depth-6-face ((t (:foreground "cyan"))))
+           '(rainbow-delimiters-depth-7-face ((t (:foreground "deep sky blue"))))
+           '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
+           '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
+
+   #+end_src
 ** archive
 *** COMMENT Конфигурация цветовой схемы(и шрифта) для Omnius
 
