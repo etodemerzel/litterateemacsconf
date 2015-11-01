@@ -500,6 +500,7 @@
      (require 'yasnippet)
      (yas-global-mode 1)
    #+END_SRC
+
 ** iedit-mode
 
    #+BEGIN_SRC elisp :tangle ~/.emacs
@@ -507,6 +508,7 @@
 
      (define-key global-map (kbd "C-c ;") 'iedit-mode)
    #+END_SRC
+
 ** linum-plugin
 
    #+BEGIN_SRC elisp :tangle ~/.emacs
@@ -680,11 +682,14 @@
                (org . t)
                (plantuml . t)
                (haskell . t)
-               (latex . t))))
+               (latex . t)
+               (C . t))))
 
     #+end_src
 
     [2015-09-02 Ср 22:10] При обновлении org-mode до версии 8.3 возникает проблема, о которой имакс сигнализирует сообщением /Invalid function: org-babel-header-args-safe-fn/. Как я узнал [[http://irreal.org/blog/?p%3D4295][из поста]], дело в поддержке языка R. Если закоментировать строку (R . t), то всё начинает работать. Но можно обойтись и без таких суровых мер оставаясь под сенью поддержки языка R оргмодом. Для этого необходимо перекомпилировать файл ob-R.el Делается это так M-x byte-compile-file ~/.emacs.d/elpa/org-20150831/ob-R.el
+
+    [2015-11-02 Пн 03:57] С поддержкой языка С/С++ решение с возникающей проблемой(org-babel-execute-src-block: No org-babel-execute function for C++! при попытке выполнить код) похоже. M-x byte-compile-file RET ~/.emacs.d/elpa/org-21051005/ob-C.el
 *** дополнительные режимы org-mode
 
     Помодоро -- инструмент контроля времени нагрузки. На практике, просто таймер отсчитывающий 25 минут для работы и 5 минут для отдыха. Делает соотвествующее тайм-отметки.
@@ -1242,6 +1247,17 @@
    #+begin_src elisp :tangle ~/.emacs
      (require 'bookmark+)
    #+end_src
+
+   [2015-11-01 Вс 15:15]
+   Добавлю [[https://youtu.be/i6UNs2M58ys][рекомендуемые]] Дмитрием Бушенко опции bookmark+
+
+   #+begin_src elisp :tangle ~/.emacs
+     (bmkp-toggle-auto-light-when-jump)
+     (bmkp-toggle-auto-light-when-set)
+   #+end_src
+
+   Данные опции указывают подсвечивать места, где сделаны закладки
+
 ** COMMENT org-screnshot
    :LOGBOOK:
    CLOCK: [2015-09-23 Ср 19:30]--[2015-09-23 Ср 20:22] =>  0:52
@@ -1405,7 +1421,6 @@
                   (global-set-key (kbd "C-c M-m") 'tiny-expand))
 
    #+end_src
-
 ** wrap-region
 
    Использую [[http://pragmaticemacs.com/emacs/wrap-text-in-custom-characters/][это расширение по рецепту]]
@@ -1427,6 +1442,18 @@
        (add-hook 'org-mode-hook 'wrap-region-mode)
        (add-hook 'latex-mode-hook 'wrap-region-mode))
    #+end_src
+
+** ebib
+
+   Так как ебиб был внесём мною ранее в список установленных приложений, я не буду настраивать его с помощью use-package
+
+   [[https://joostkremers.github.io/ebib/ebib-manual.html][Официальный мануал ebib]]
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     (global-set-key "\C-ce" 'ebib)
+   #+END_SRC
+
+
 * Тема оформления и шрифт
 
   Лучше всего настраивать цветовую тему и шрифты средствами самого emacs. Но чтобы у меня не произошёл сброс этих настроек при обновлении файла конфигурации, я занесу под этим заголовком копипасту настроек из старого конф. файла. Тангл той или цветовой схемы необходимо отключить в зависимости от компьютера, на котором происходит экспорт.
@@ -1505,9 +1532,6 @@
 
    #+end_src
 ** cyberpunk
-   :LOGBOOK:
-   CLOCK: [2015-10-28 Ср 20:26]
-   :END:
    #+begin_src elisp :tangle ~/.emacs
       (use-package cyberpunk-theme
           :ensure t
