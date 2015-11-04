@@ -764,6 +764,39 @@
       "texi2dvi --pdf --clean --verbose --batch %f")))
     #+end_src
 
+*** Оформление
+    :LOGBOOK:
+    CLOCK: [2015-11-04 Ср 23:57]--[2015-11-05 Чт 00:01] =>  0:04
+    :END:
+
+    [2015-11-04 Ср 23:57]
+    Так как накопилось несколько пунктов, затрагивающих визуальную составляющую организации информации в орг-мод, я решил вынести их в отдельную категорию.
+
+**** org-bullets
+     :LOGBOOK:
+     CLOCK: [2015-11-03 Вт 23:56]--[2015-11-04 Ср 00:30] =>  0:34
+     :END:
+
+     Расшиерние для замены стандартных звёздочек "*" на буллеты в заголовке org-mode emacs'а
+
+     #+begin_src elisp :tangle ~/.emacs
+       (use-package org-bullets
+           :ensure t
+           :init
+           (require 'org-bullets)
+           (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+     #+end_src
+
+**** символы свёртки
+     :LOGBOOK:
+     CLOCK: [2015-11-05 Чт 00:01]
+     :END:
+
+     [2015-11-05 Чт 00:01]
+     Символ свёртки в имакс это символ, обозначающий что под данной строкой скрываются данные, которые можно увидеть воспользовавшись клавишей TAB
+     #+begin_src elisp :tangle ~/.emacs
+       (setq org-ellipsis "↴")
+     #+end_src
 *** вставки исходного кода
 
 **** функция обёртки выделенного текста в окружение begin end
@@ -1390,6 +1423,26 @@
      (define-globalized-minor-mode global-rainbow-delimeters-mode rainbow-delimiters-mode turn-on-rainbow-delimeters-mode)
      (add-hook 'buffer-list-update-hook 'global-rainbow-delimeters-mode)
    #+end_src
+
+   #+begin_src elisp :tangle ~/.emacs
+   (custom-set-faces
+                  ;; custom-set-faces was added by Custom.
+                  ;; If you edit it by hand, you could mess it up, so be careful.
+                  ;; Your init file should contain only one such instance.
+                  ;; If there is more than one, they won't work right.
+                  ;;параметр настройки шрифта -- Terminus, и прочих параметров set-default-face'а
+
+                   '(cursor ((t (:background "dark orange"))))
+                  ;;настройка цвета скобок расширения rainbow-delimeters
+                  '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
+                  '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
+                  '(rainbow-delimiters-depth-4-face ((t (:foreground "chartreuse"))))
+                  '(rainbow-delimiters-depth-5-face ((t (:foreground "spring green"))))
+                  '(rainbow-delimiters-depth-6-face ((t (:foreground "cyan"))))
+                  '(rainbow-delimiters-depth-7-face ((t (:foreground "deep sky blue"))))
+                  '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
+                  '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
+   #+end_src
 ** perspective
    :LOGBOOK:
    CLOCK: [2015-10-08 Чт 12:56]--[2015-10-08 Чт 13:00] =>  0:04
@@ -1452,7 +1505,6 @@
    #+BEGIN_SRC elisp :tangle ~/.emacs
      (global-set-key "\C-ce" 'ebib)
    #+END_SRC
-
 ** nyan mode
    :LOGBOOK:
    CLOCK: [2015-11-02 Пн 18:12]--[2015-11-02 Пн 18:18] =>  0:06
@@ -1466,112 +1518,151 @@
    #+END_SRC
 
    Чтобы выполнить этот участок кода, необходимо воспользоваться комбинацией C-x C-e предварительно установив курсор сразу же за участком кода, который необходимо выполнить.
+
 * Тема оформления и шрифт
-
-  Лучше всего настраивать цветовую тему и шрифты средствами самого emacs. Но чтобы у меня не произошёл сброс этих настроек при обновлении файла конфигурации, я занесу под этим заголовком копипасту настроек из старого конф. файла. Тангл той или цветовой схемы необходимо отключить в зависимости от компьютера, на котором происходит экспорт.
-  [2015-09-23 Ср 17:53] Нашёл способ средствами самого имакс регулировать экспорт кода на разных машинах. Этиим средствами являются закомментариевание по комбинации C-; . При работе на demerzeil'е будет закоменчен Omnius, при работе на Omnius будет закоменчен demerzeil.
-  [2015-10-28 Ср 19:35] Перенёс часть, отвечающую за настроку внешнего вида вниз, в силу разнородности затрагиваемых настроек от самого имакса до расширений(rainbow-delimeters) в самый низ. А разбить настройки на нужное число частей не получится в силу того, что часть кода с custom-set-face должна быть для корректности только одна.
-** COMMENT darcula + terminus
+** Тема
    :LOGBOOK:
-   CLOCK: [2015-10-28 Ср 19:54]--[2015-10-28 Ср 19:54] =>  0:00
-   CLOCK: [2015-10-28 Ср 19:12]--[2015-10-28 Ср 19:23] =>  0:11
-   CLOCK: [2015-10-28 Ср 19:12]--[2015-10-28 Ср 19:12] =>  0:00
+   CLOCK: [2015-11-02 Пн 18:57]--[2015-11-02 Пн 19:28] =>  0:31
    :END:
 
-   Указываю расширению use-package загрузить из репозитория и устанавить в качестве темы оформления тему darcula
+   Кажется я нашёл способ разделить настройку цевтовой темы и шрифта
+*** Cyberpunk+оранжевый курсор
 
-   #+begin_src elisp :tangle ~/.emacs
-     (use-package darcula-theme
-         :ensure t
-         :init
-         (load-theme 'darcula t))
-   #+end_src
+    Контрастная полноцветная схема с поодержкой org-mode(подсвечивает оргмодовские элементы)
 
-   Так как настройки шрифта зависят от настроек цветовой схемы, приходится настраивать их одновременно.
-
-   #+begin_src elisp :tangle ~/.emacs
-     (custom-set-faces
-      ;; custom-set-faces was added by Custom.
-      ;; If you edit it by hand, you could mess it up, so be careful.
-      ;; Your init file should contain only one such instance.
-      ;; If there is more than one, they won't work right.
-      ;;параметр настройки шрифта -- Terminus, и прочих параметров set-default-face'а
-      '(default ((t (:inherit nil :stipple nil :background "#2B2B2B" :foreground "#a9b7c6" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Terminus"))))
-      ;;настройка цвета скобок расширения rainbow-delimeters
-      '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
-      '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
-      '(rainbow-delimiters-depth-4-face ((t (:foreground "chartreuse"))))
-      '(rainbow-delimiters-depth-5-face ((t (:foreground "spring green"))))
-      '(rainbow-delimiters-depth-6-face ((t (:foreground "cyan"))))
-      '(rainbow-delimiters-depth-7-face ((t (:foreground "deep sky blue"))))
-      '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
-      '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
-   #+end_src
-** COMMENT warm-night + модификация курсора + terminus
-   :LOGBOOK:
-   CLOCK: [2015-10-28 Ср 19:58]--[2015-10-28 Ср 20:26] =>  0:28
-   :END:
-
-   Загрузка и установка темы warm-night с помощью расширения use-package
-
-   #+begin_src elisp :tangle ~/.emacs
-     (use-package warm-night-theme
-         :ensure t
-         :init
-         (load-theme 'warm-night t))
-   #+end_src
-
-   Установка шрифта и цвета скобок rainbow-delimeters
-
-   #+begin_src elisp :tangle ~/.emacs
-     (custom-set-faces
-           ;; custom-set-faces was added by Custom.
-           ;; If you edit it by hand, you could mess it up, so be careful.
-           ;; Your init file should contain only one such instance.
-           ;; If there is more than one, they won't work right.
-           ;;параметр настройки шрифта -- Terminus, и прочих параметров set-default-face'а
-      '(default ((t (:inherit nil :stipple nil :background "#292424" :foreground "#b1b1b1" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 105 :width normal :foundry "xos4" :family "Terminus "))))
-            '(cursor ((t (:background "dark orange"))))
-           ;;настройка цвета скобок расширения rainbow-delimeters
-           '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
-           '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
-           '(rainbow-delimiters-depth-4-face ((t (:foreground "chartreuse"))))
-           '(rainbow-delimiters-depth-5-face ((t (:foreground "spring green"))))
-           '(rainbow-delimiters-depth-6-face ((t (:foreground "cyan"))))
-           '(rainbow-delimiters-depth-7-face ((t (:foreground "deep sky blue"))))
-           '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
-           '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
-
-   #+end_src
-** cyberpunk
-   #+begin_src elisp :tangle ~/.emacs
+    #+begin_src elisp :tangle ~/.emacs
       (use-package cyberpunk-theme
           :ensure t
           :init
           (load-theme 'cyberpunk t))
-   #+end_src
+    #+end_src
+
+    Расскрасим курсор в оранжевый
+
+    #+begin_src elisp :tangle ~/.emacs
+      (set-cursor-color "dark orange")
+    #+end_src
+
+    [2015-11-02 Пн 19:27]
+** Шрифт
+   :LOGBOOK:
+   CLOCK: [2015-11-02 Пн 19:28]--[2015-11-02 Пн 19:32] =>  0:04
+   :END:
+
+   [2015-11-02 Пн 19:29]
+   Благодаря [[http://pragmaticemacs.com/emacs/change-text-size/][статье]] узнал о том как правильно декларативно(указанием в файле кнфигурации) настроить шрифт.
 
    #+begin_src elisp :tangle ~/.emacs
-     (custom-set-faces
-                ;; custom-set-faces was added by Custom.
-                ;; If you edit it by hand, you could mess it up, so be careful.
-                ;; Your init file should contain only one such instance.
-                ;; If there is more than one, they won't work right.
-                ;;параметр настройки шрифта -- Terminus, и прочих параметров set-default-face'а
-      '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#d3d3d3" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "unknown" :family "Terminus"))))
-                 '(cursor ((t (:background "dark orange"))))
-                ;;настройка цвета скобок расширения rainbow-delimeters
-                '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
-                '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
-                '(rainbow-delimiters-depth-4-face ((t (:foreground "chartreuse"))))
-                '(rainbow-delimiters-depth-5-face ((t (:foreground "spring green"))))
-                '(rainbow-delimiters-depth-6-face ((t (:foreground "cyan"))))
-                '(rainbow-delimiters-depth-7-face ((t (:foreground "deep sky blue"))))
-                '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
-                '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
-
+     (setq default-frame-alist '((font . "Terminus")))
    #+end_src
 ** archive
+
+*** Тема+шрифт
+    Лучше всего настраивать цветовую тему и шрифты средствами самого emacs. Но чтобы у меня не произошёл сброс этих настроек при обновлении файла конфигурации, я занесу под этим заголовком копипасту настроек из старого конф. файла. Тангл той или цветовой схемы необходимо отключить в зависимости от компьютера, на котором происходит экспорт.
+    [2015-09-23 Ср 17:53] Нашёл способ средствами самого имакс регулировать экспорт кода на разных машинах. Этиим средствами являются закомментариевание по комбинации C-; . При работе на demerzeil'е будет закоменчен Omnius, при работе на Omnius будет закоменчен demerzeil.
+    [2015-10-28 Ср 19:35] Перенёс часть, отвечающую за настроку внешнего вида вниз, в силу разнородности затрагиваемых настроек от самого имакса до расширений(rainbow-delimeters) в самый низ. А разбить настройки на нужное число частей не получится в силу того, что часть кода с custom-set-face должна быть для корректности только одна.
+    [2015-11-02 Пн 19:33]
+    Перенёс сюда, так как узнал как сделать эти настройки декларативно.
+**** COMMENT darcula + terminus
+     :LOGBOOK:
+     CLOCK: [2015-10-28 Ср 19:54]--[2015-10-28 Ср 19:54] =>  0:00
+     CLOCK: [2015-10-28 Ср 19:12]--[2015-10-28 Ср 19:23] =>  0:11
+     CLOCK: [2015-10-28 Ср 19:12]--[2015-10-28 Ср 19:12] =>  0:00
+     :END:
+
+     Указываю расширению use-package загрузить из репозитория и устанавить в качестве темы оформления тему darcula
+
+     #+begin_src elisp :tangle ~/.emacs
+       (use-package darcula-theme
+           :ensure t
+           :init
+           (load-theme 'darcula t))
+     #+end_src
+
+     Так как настройки шрифта зависят от настроек цветовой схемы, приходится настраивать их одновременно.
+
+     #+begin_src elisp :tangle ~/.emacs
+       (custom-set-faces
+        ;; custom-set-faces was added by Custom.
+        ;; If you edit it by hand, you could mess it up, so be careful.
+        ;; Your init file should contain only one such instance.
+        ;; If there is more than one, they won't work right.
+        ;;параметр настройки шрифта -- Terminus, и прочих параметров set-default-face'а
+        '(default ((t (:inherit nil :stipple nil :background "#2B2B2B" :foreground "#a9b7c6" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Terminus"))))
+        ;;настройка цвета скобок расширения rainbow-delimeters
+        '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
+        '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
+        '(rainbow-delimiters-depth-4-face ((t (:foreground "chartreuse"))))
+        '(rainbow-delimiters-depth-5-face ((t (:foreground "spring green"))))
+        '(rainbow-delimiters-depth-6-face ((t (:foreground "cyan"))))
+        '(rainbow-delimiters-depth-7-face ((t (:foreground "deep sky blue"))))
+        '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
+        '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
+     #+end_src
+**** COMMENT warm-night + модификация курсора + terminus
+     :LOGBOOK:
+     CLOCK: [2015-10-28 Ср 19:58]--[2015-10-28 Ср 20:26] =>  0:28
+     :END:
+
+     Загрузка и установка темы warm-night с помощью расширения use-package
+
+     #+begin_src elisp :tangle ~/.emacs
+       (use-package warm-night-theme
+           :ensure t
+           :init
+           (load-theme 'warm-night t))
+     #+end_src
+
+     Установка шрифта и цвета скобок rainbow-delimeters
+
+     #+begin_src elisp :tangle ~/.emacs
+       (custom-set-faces
+             ;; custom-set-faces was added by Custom.
+             ;; If you edit it by hand, you could mess it up, so be careful.
+             ;; Your init file should contain only one such instance.
+             ;; If there is more than one, they won't work right.
+             ;;параметр настройки шрифта -- Terminus, и прочих параметров set-default-face'а
+        '(default ((t (:inherit nil :stipple nil :background "#292424" :foreground "#b1b1b1" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 105 :width normal :foundry "xos4" :family "Terminus "))))
+              '(cursor ((t (:background "dark orange"))))
+             ;;настройка цвета скобок расширения rainbow-delimeters
+             '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
+             '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
+             '(rainbow-delimiters-depth-4-face ((t (:foreground "chartreuse"))))
+             '(rainbow-delimiters-depth-5-face ((t (:foreground "spring green"))))
+             '(rainbow-delimiters-depth-6-face ((t (:foreground "cyan"))))
+             '(rainbow-delimiters-depth-7-face ((t (:foreground "deep sky blue"))))
+             '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
+             '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
+
+     #+end_src
+**** COMMENT cyberpunk
+     #+begin_src elisp :tangle ~/.emacs
+        (use-package cyberpunk-theme
+            :ensure t
+            :init
+            (load-theme 'cyberpunk t))
+     #+end_src
+
+     #+begin_src elisp :tangle ~/.emacs
+       (custom-set-faces
+                  ;; custom-set-faces was added by Custom.
+                  ;; If you edit it by hand, you could mess it up, so be careful.
+                  ;; Your init file should contain only one such instance.
+                  ;; If there is more than one, they won't work right.
+                  ;;параметр настройки шрифта -- Terminus, и прочих параметров set-default-face'а
+        '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#d3d3d3" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "unknown" :family "Terminus"))))
+                   '(cursor ((t (:background "dark orange"))))
+                  ;;настройка цвета скобок расширения rainbow-delimeters
+                  '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
+                  '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
+                  '(rainbow-delimiters-depth-4-face ((t (:foreground "chartreuse"))))
+                  '(rainbow-delimiters-depth-5-face ((t (:foreground "spring green"))))
+                  '(rainbow-delimiters-depth-6-face ((t (:foreground "cyan"))))
+                  '(rainbow-delimiters-depth-7-face ((t (:foreground "deep sky blue"))))
+                  '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
+                  '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
+
+     #+end_src
 *** COMMENT Конфигурация цветовой схемы(и шрифта) для Omnius
 
     #+begin_src elisp :tangle ~/.emacs
