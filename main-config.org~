@@ -303,6 +303,7 @@
      (setq bookmark-default-file (concat user-emacs-directory "bookmarks")) ;; хранить закладки в файл bookmarks в .emacs.d
 
    #+end_src
+
 ** Краткое подтверждение
    :LOGBOOK:
    CLOCK: [2015-09-23 Ср 19:03]--[2015-09-23 Ср 19:07] =>  0:04
@@ -311,24 +312,6 @@
    #+begin_src elisp :tangle ~/.emacs
      (fset 'yes-or-no-p 'y-or-n-p)
    #+end_src
-
-** Навигация по тексту
-   :LOGBOOK:
-   CLOCK: [2015-11-07 Сб 04:07]
-   :END:
-
-*** предыдущую строку вверх
-
-    [2015-11-07 Сб 04:07]
-    Обозначу перенос строки целиком(независимо от положения курсора в самой строке) сочетанием M-j. На M-j уже назначена дублированная на C-M-j команда новой строки. Поэтому сочетание M-j можно занять без угрызений совести. [[http://pragmaticemacs.com/emacs/join-line-to-following-line/][Адресс рецепта]]. Это сочетание присоединяет низлежащую строку к текущей.
-
-    #+begin_src elisp :tangle ~/.emacs
-      ;; join line to next line [2015-11-07 Сб 04:10]
-      (global-set-key (kbd "M-j")
-                  (lambda ()
-                        (interactive)
-                        (join-line -1)))
-    #+end_src
 * Расширения
 ** auto-complete
 
@@ -1277,7 +1260,7 @@
      (global-page-break-lines-mode t)
    #+end_src
 
-** COMMENT browse-kill-ring
+** browse-kill-ring
    :LOGBOOK:
    CLOCK: [2015-09-20 Вс 16:13]--[2015-09-20 Вс 17:12] =>  0:59
    :END:
@@ -1286,9 +1269,6 @@
      (global-set-key "\C-cy" 'browse-kill-ring)
    #+end_src
 
-   [2015-11-06 Пт 12:21]
-
-   Отключаю пока. Нашёл альтернативу в лице helm-kill-ring
 ** avy
    :LOGBOOK:
    CLOCK: [2015-09-20 Вс 17:12]--[2015-09-20 Вс 19:07] =>  1:55
@@ -1467,6 +1447,7 @@
                   ;; If there is more than one, they won't work right.
                   ;;параметр настройки шрифта -- Terminus, и прочих параметров set-default-face'а
 
+                   '(cursor ((t (:background "dark orange"))))
                   ;;настройка цвета скобок расширения rainbow-delimeters
                   '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
                   '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
@@ -1553,6 +1534,9 @@
 
    Чтобы выполнить этот участок кода, необходимо воспользоваться комбинацией C-x C-e предварительно установив курсор сразу же за участком кода, который необходимо выполнить.
 ** pdf-tools
+   :LOGBOOK:
+   CLOCK: [2015-11-05 Чт 05:24]
+   :END:
 
    [2015-11-05 Чт 05:26]
    Чтобы каждый не заниматься инсталирование pdf-tools, необходимого для полноценной работы с pdf(гиперссылки, syncTeX et cetera), укажу в файле конфигурации.
@@ -1563,41 +1547,6 @@
          :init
          (pdf-tools-install))
    #+end_src
-** beacon
-   :LOGBOOK:
-   CLOCK: [2015-11-06 Пт 10:05]--[2015-11-06 Пт 10:31] =>  0:26
-   :END:
-
-   [2015-11-06 Пт 10:05]
-
-   Расширение для подсветки курсора во врменя скроллинга.
-
-   #+begin_src elisp :tangle ~/.emacs
-     (use-package beacon
-         :ensure t
-         :init
-         (beacon-mode 1)
-         (setq beacon-push-mark 35)
-         (setq beacon-color "cyan"))
-   #+end_src
-** helm
-
-   Helm -- программное расширение имакс, для предоставления более удобного интерфейса(чем дефолтный) со списками и полосами перемещения по ним.
-   [[http://tuhdo.github.io/helm-intro.html][Руководство]].
-*** helm-kill-ring
-
-    Использую как более удобную альтернативу [[*browse-kill-ring][kill-ring-browser]].
-
-    #+begin_src elisp :tangle ~/.emacs
-      (global-set-key (kbd "C-c y") 'helm-show-kill-ring)
-    #+end_src
-    [2015-11-06 Пт 12:31]
-*** helm-mini
-
-    Средство для переключения буферов с стиле helm
-    #+begin_src elisp :tangle ~/.emacs
-      (global-set-key (kbd "C-x b") 'helm-mini)
-    #+end_src
 * Тема оформления и шрифт
 ** Тема
    :LOGBOOK:
@@ -1623,23 +1572,6 @@
     #+end_src
 
     [2015-11-02 Пн 19:27]
-*** COMMENT darcula + org-beautify-theme
-
-    [2015-11-05 Чт 08:08]
-    Не работает.
-    #+BEGIN_SRC elisp :tangle ~/.emacs
-      (use-package darcula-theme
-                 :ensure t
-                 :init
-                 (load-theme 'darcula t))
-    #+END_SRC
-
-    #+BEGIN_SRC elisp :tangle ~/.emacs
-      (use-package org-beautify-theme
-          :ensure t
-          :init
-          (load-theme 'org-beautify-theme t))
-    #+END_SRC
 ** Шрифт
    :LOGBOOK:
    CLOCK: [2015-11-02 Пн 19:28]--[2015-11-02 Пн 19:32] =>  0:04
