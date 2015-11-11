@@ -288,6 +288,54 @@
     #+BEGIN_SRC elisp :tangle ~/.emacs
       (global-auto-revert-mode t)
     #+END_SRC
+*** Перемещение фрейма клавишами
+
+    [2015-11-07 Сб 06:25]
+    Для работы этого скрипта необходим дополнительный пакет
+
+    #+begin_src elisp :tangle ~/.emacs
+      (use-package frame-cmds
+          :ensure t)
+    #+end_src
+
+    [[http://pragmaticemacs.com/emacs/resize-your-emacs-frame-with-keyboard-shortcuts/][Согласно инструкции]].
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;;[2015-11-07 Сб 06:26]
+      (defun bjm-frame-resize-l ()
+        "set frame full height and 86 columns wide and position at screen left"
+        (interactive)
+        (set-frame-width (selected-frame) 86)
+        (maximize-frame-vertically)
+        (set-frame-position (selected-frame) 0 0)
+        )
+
+      ;;set frame full height and 86 columns wide
+      ;;and position at screen right
+      (defun bjm-frame-resize-r ()
+        "set frame full height and 86 columns wide and position at screen right"
+        (interactive)
+        (set-frame-width (selected-frame) 86)
+        (maximize-frame-vertically)
+        (set-frame-position (selected-frame) (- (display-pixel-width) (frame-pixel-width)) 0)
+        )
+
+      ;;set frame full height and 86 columns wide
+      ;;and position at screen right of left hand screen in 2 monitor display
+      ;;assumes monitors are same resolution
+      (defun bjm-frame-resize-r2 ()
+        "set frame full height and 86 columns wide and position at screen right of left hand screen in 2 monitor display assumes monitors are same resolution"
+        (interactive)
+        (set-frame-width (selected-frame) 86)
+        (maximize-frame-vertically)
+        (set-frame-position (selected-frame) (- (/ (display-pixel-width) 2) (frame-pixel-width)) 0)
+        )
+
+      ;;set keybindings
+      (global-set-key (kbd "C-c C-b <left>") 'bjm-frame-resize-l)
+      (global-set-key (kbd "C-c C-b <right>") 'bjm-frame-resize-r)
+      (global-set-key (kbd "C-c C-b <S-right>") 'bjm-frame-resize-r2)
+    #+end_src
 ** Закладки
 
    #+begin_src elisp :tangle ~/.emacs
@@ -313,9 +361,6 @@
    #+end_src
 
 ** Навигация по тексту
-   :LOGBOOK:
-   CLOCK: [2015-11-07 Сб 04:07]
-   :END:
 
 *** предыдущую строку вверх
 
@@ -713,7 +758,7 @@
                (plantuml . t)
                (haskell . t)
                (latex . t)
-               (C . t))))
+               )))
 
     #+end_src
 
@@ -1598,6 +1643,21 @@
     #+begin_src elisp :tangle ~/.emacs
       (global-set-key (kbd "C-x b") 'helm-mini)
     #+end_src
+** goto-chg
+   :LOGBOOK:
+   CLOCK: [2015-11-11 Ср 12:35]--[2015-11-11 Ср 12:40] =>  0:05
+   :END:
+
+   Расширение, которое позволяет перемещаться по местам последних изменений. Узнал [[http://pragmaticemacs.com/emacs/move-through-edit-points/][благодаря]].
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package goto-chg
+         :ensure t
+         :init
+         (require 'goto-chg)
+         (global-set-key (kbd "C-c . b") 'goto-last-change)
+         (global-set-key (kbd "C-c , b") 'goto-last-change-reverse))
+   #+end_src
+
 * Тема оформления и шрифт
 ** Тема
    :LOGBOOK:
