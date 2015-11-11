@@ -1643,6 +1643,16 @@
     #+begin_src elisp :tangle ~/.emacs
       (global-set-key (kbd "C-x b") 'helm-mini)
     #+end_src
+*** helm-mark-ring
+    :LOGBOOK:
+    CLOCK: [2015-11-11 Ср 12:47]
+    :END:
+
+    Навигация в стиле helm по местам пребывания курсора
+
+    #+begin_src elisp :tangle ~/.emacs
+      (global-set-key (kbd "C-c t") 'helm-mark-ring)
+    #+end_src
 ** goto-chg
    :LOGBOOK:
    CLOCK: [2015-11-11 Ср 12:35]--[2015-11-11 Ср 12:40] =>  0:05
