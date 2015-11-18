@@ -502,7 +502,6 @@
 
        (add-hook 'TeX-mode-hook 'ac-latex-mode-setup)
      #+end_src
-
 **** reftex
 
      Расширение для работы со ссылками, цитатами et cetera. Удобен в сочетании reftex + Auctex
@@ -530,6 +529,37 @@
      #+end_src
 
      [2015-07-04 Сб 20:52]
+
+**** latex-narrow-to-environment
+     :LOGBOOK:
+     CLOCK: [2015-11-13 Пт 08:49]--[2015-11-13 Пт 08:54] =>  0:05
+     :END:
+
+     Функция, [[http://mbork.pl/2014-11-15_LaTeX-narrow-to-environment][описанная]] Мартином Борковским, для того, чтобы направлять latex-фрагменты для редактирования в новый буфер с включённым latex-mode'ом
+
+     #+begin_src elisp :tangle ~/.emacs
+       (defun LaTeX-narrow-to-environment (&optional count)
+         "Narrow buffer to current LaTeX environment (or COUNT
+       environments around point)"
+         (interactive "p")
+         (LaTeX-mark-environment count)
+         (narrow-to-region (save-excursion
+                             (goto-char (region-beginning))
+                             (beginning-of-line)
+                             (point))
+                           (region-end))
+         (deactivate-mark))
+     #+end_src
+
+     Определим клавишную связку для вызова
+
+     #+begin_src elisp :tangle ~/.emacs
+       (eval-after-load 'latex
+         '(define-key LaTeX-mode-map (kbd "C-x n e")
+            'LaTeX-narrow-to-environment))
+     #+end_src
+
+     Я понял не правильно назначение этой функции. На самом деле она не отправляет выделенное в отдельный буфер с латех-модом, а определяет окружение латех в точке, и отправляет его с исходным модом.
 
 *** erlang
 **** Erlang-mode
@@ -706,8 +736,7 @@
 
     #+BEGIN_SRC elisp :tangle ~/.emacs
       (require                           'org) ;; вызвать org-mode
-      (global-set-key "\C-ca"     'org-agenda) ;; установить клавиши вызова  агенды на C-c a
-      (global-set-key "\C-cb"   'org-iswitchb) ;; установить переключение между буферами emacs на C-c b
+      (global-set-key "\C-cb"   'org-iswitchb) ;; установить переключение между орг-буферами emacs на C-c b
       (global-set-key "\C-cd" 'org-store-link) ;; установить вызов глобального хранилища ссылок на C-c d
       (global-set-key "\C-cL" 'org-insert-link-global);;[2015-09-24 Чт 21:29]
       (global-set-key "\C-co" 'org-open-at-point-global);;[2015-09-24 Чт 21:29]
@@ -717,8 +746,8 @@
 
       ;;(setq org-agenda-files (list "~/Dropbox/Org/todo/magisterium.org")) ;; указание агенде в каких файлах искать запланированные вещи.
 
-      ;;[2015-06-10 Ср 18:00]
-      (setq org-agenda-files (quote ("~/Dropbox/notes/org/"))) ;; указываем агенде, что все плановые файлы лежат в этой директории
+
+
     #+END_SRC
 
     #+begin_src elisp :tangle ~/.emacs
@@ -897,7 +926,6 @@
        ;;bind to key
        (define-key org-mode-map (kbd "C-<") 'org-begin-template)
      #+end_src
-
 *** Оформление
     :LOGBOOK:
     CLOCK: [2015-11-04 Ср 23:57]--[2015-11-05 Чт 00:01] =>  0:04
@@ -931,7 +959,46 @@
      #+begin_src elisp :tangle ~/.emacs
        (setq org-ellipsis "↓")
      #+end_src
+*** Планирование и Agenda
+    :LOGBOOK:
+    CLOCK: [2015-11-18 Ср 11:49]
+    :END:
 
+    [2015-11-18 Ср 11:56]
+    Настраиваю планирование в орг-моде согласно [[http://pragmaticemacs.com/emacs/org-mode-basics-vi-a-simple-todo-list/][указаниям]].
+
+    #+begin_src elisp :tangle ~/.emacs
+      (global-set-key "\C-ca"     'org-agenda) ;; установить клавиши вызова  агенды на C-c a
+      ;;[2015-06-10 Ср 18:00]
+      (setq org-agenda-files (quote ("~/Dropbox/notes/org/"))) ;; указываем агенде, что все плановые файлы лежат в этой директории
+    #+end_src
+
+
+    Задание приоритетов для задач todo. Задаче с наивысшим приоритетом будет соответствовать пометка [A], задаче с низшим приоритетом метка [C],  по умолчанию на задачу  будет установлена метка [A].
+
+    #+begin_src elisp :tangle ~/.emacs
+      (setq org-highest-priority ?A)
+      (setq org-lowest-priority ?C)
+      (setq org-default-priority ?A)
+    #+end_src
+
+    Определение цветов меток различных приоритетов.
+
+    #+begin_src elisp :tangle ~/.emacs
+      (setq org-priority-faces '((?A . (:foreground "red" :weight bold))
+                                 (?B . (:foreground "orange"))
+                                 (?C . (:foreground "lime"))))
+    #+end_src
+
+    Пусть агенда открывается в отдельном окне
+
+    #+begin_src elisp :tangle ~/.emacs
+      (setq org-agenda-window-setup (quote current-window))
+    #+end_src
+
+    #+begin_src elisp :tangle ~/.emacs
+      (define-key global-map (kbd "C-c g") 'org-capture)
+    #+end_src
 ** COMMENT ido
 
    ido -- расширение для интерактивной работы с минибуфером. Это расширение выводит в минибуфер все потенциальные варианты(имён файлов, команд et cetera) содержащие введённе пользователем символы. Этакое автодополнение.
@@ -1645,7 +1712,7 @@
     #+end_src
 *** helm-mark-ring
     :LOGBOOK:
-    CLOCK: [2015-11-11 Ср 12:47]
+    CLOCK: [2015-11-11 Ср 12:47]--[2015-11-11 Ср 15:04] =>  2:17
     :END:
 
     Навигация в стиле helm по местам пребывания курсора
