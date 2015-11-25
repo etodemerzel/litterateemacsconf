@@ -448,225 +448,392 @@
       (superword-mode 0);; 1 включено, 0 выключено
     #+end_src
 ** Средства разработки
-*** LaTeX
-**** Auctex
+*** Языки
+**** LaTeX
+***** Auctex
 
-     Подключение auctex и задание начальных опций
+      Подключение auctex и задание начальных опций
 
-     #+begin_src elisp :tangle ~/.emacs
-        ;;14/04/2015
+      #+begin_src elisp :tangle ~/.emacs
+         ;;14/04/2015
 
-       ;;Actex
-       (require 'tex-site)
-       ;;(add-hook 'TeX-mode-hook
-       ;;          '(lambda ()
-       ;;            (local-set-key "\\" 'TeX-electric-macro )))
+        ;;Actex
+        (require 'tex-site)
+        ;;(add-hook 'TeX-mode-hook
+        ;;          '(lambda ()
+        ;;            (local-set-key "\\" 'TeX-electric-macro )))
 
-       ;;11/05/15 -- 14:32
-       (setq-default TeX-master nil);;опция указывающая auctex спрашивать каждый раз имя главного файла, на случай если я злоупотребляю input и include
-     #+end_src
+        ;;11/05/15 -- 14:32
+        (setq-default TeX-master nil);;опция указывающая auctex спрашивать каждый раз имя главного файла, на случай если я злоупотребляю input и include
+      #+end_src
 
-     Настройка программы просмотра для tex2pdf
+      Настройка программы просмотра для tex2pdf
 
-     #+begin_src elisp :tangle ~/.emacs
+      #+begin_src elisp :tangle ~/.emacs
 
-       ;;07/05/2015 -- 10:30
+        ;;07/05/2015 -- 10:30
 
-       (setq TeX-view-program-selection
-             '((output-pdf "PDF Viewer")))
-       (setq TeX-view-program-list
-             '(("PDF Viewer" "okular %o")))
-     #+end_src
+        (setq TeX-view-program-selection
+              '((output-pdf "PDF Viewer")))
+        (setq TeX-view-program-list
+              '(("PDF Viewer" "okular %o")))
+      #+end_src
 
-**** company-mode для auctex
+***** company-mode для auctex
 
-     #+begin_src elisp :tangle ~/.emacs
-       ;;30/04/15 12:32
-       (company-auctex-init)
-       ;;30/04/15 -- 23:02
-       (add-hook 'TeX-mode-hook 'company-mode) ;; подгружает company-auctex только в auctex моде. то что нужно
-     #+end_src
+      #+begin_src elisp :tangle ~/.emacs
+        ;;30/04/15 12:32
+        (company-auctex-init)
+        ;;30/04/15 -- 23:02
+        (add-hook 'TeX-mode-hook 'company-mode) ;; подгружает company-auctex только в auctex моде. то что нужно
+      #+end_src
 
-**** auto-complete-mode for auctex
+***** auto-complete-mode for auctex
 
-     auto-complete-mode это режим интерактивных подсказок-автодополнений на все случаи жизни. Существует ac-mode даже для org-mode,  хотя казалось бы.
+      auto-complete-mode это режим интерактивных подсказок-автодополнений на все случаи жизни. Существует ac-mode даже для org-mode,  хотя казалось бы.
 
-     #+begin_src elisp :tangle ~/.emacs
-       ;;30/04/15 -- 23:12
+      #+begin_src elisp :tangle ~/.emacs
+        ;;30/04/15 -- 23:12
 
-       (add-to-list 'ac-modes 'latex-mode)   ; make auto-complete aware of `latex-mode`
+        (add-to-list 'ac-modes 'latex-mode)   ; make auto-complete aware of `latex-mode`
 
-       (defun ac-latex-mode-setup ()         ; add ac-sources to default ac-sources
-           (setq ac-sources (append '(ac-source-math-unicode ac-source-math-latex ac-source-latex-commands)
-                                    ac-sources)))
+        (defun ac-latex-mode-setup ()         ; add ac-sources to default ac-sources
+            (setq ac-sources (append '(ac-source-math-unicode ac-source-math-latex ac-source-latex-commands)
+                                     ac-sources)))
 
-       (add-hook 'TeX-mode-hook 'ac-latex-mode-setup)
-     #+end_src
-**** reftex
+        (add-hook 'TeX-mode-hook 'ac-latex-mode-setup)
+      #+end_src
+***** reftex
 
-     Расширение для работы со ссылками, цитатами et cetera. Удобен в сочетании reftex + Auctex
+      Расширение для работы со ссылками, цитатами et cetera. Удобен в сочетании reftex + Auctex
 
-     Настройка в соответствии с рекомендациями [[http://www.emacswiki.org/emacs/RefTeX][emacs-wiki]].
+      Настройка в соответствии с рекомендациями [[http://www.emacswiki.org/emacs/RefTeX][emacs-wiki]].
 
-     #+begin_src elisp :tangle ~/.emacs
-       ;; [2015-07-04 Сб 20:36]
-       ;;подключение рефтеха совместно с ауктехом
-       ;;(setq reftex-plug-into-AUCTEX t)
-     #+end_src
+      #+begin_src elisp :tangle ~/.emacs
+        ;; [2015-07-04 Сб 20:36]
+        ;;подключение рефтеха совместно с ауктехом
+        ;;(setq reftex-plug-into-AUCTEX t)
+      #+end_src
 
-     Что-то не пошла настройка имакс-вики по намеченной траектории. Поэтому, использую рекомендации оффициального руководства.
+      Что-то не пошла настройка имакс-вики по намеченной траектории. Поэтому, использую рекомендации оффициального руководства.
 
-     #+begin_src elisp :tangle ~/.emacs
-       (require 'reftex)
+      #+begin_src elisp :tangle ~/.emacs
+        (require 'reftex)
 
-       ;;подключение reftex'а одновременно с auctex'ом
+        ;;подключение reftex'а одновременно с auctex'ом
 
-       (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+        (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
 
-       ;;подключение одновременно с latex-mode emacs
+        ;;подключение одновременно с latex-mode emacs
 
-       (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-     #+end_src
+        (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+      #+end_src
 
-     [2015-07-04 Сб 20:52]
+      [2015-07-04 Сб 20:52]
 
-**** latex-narrow-to-environment
+***** latex-narrow-to-environment
+      :LOGBOOK:
+      CLOCK: [2015-11-13 Пт 08:49]--[2015-11-13 Пт 08:54] =>  0:05
+      :END:
+
+      Функция, [[http://mbork.pl/2014-11-15_LaTeX-narrow-to-environment][описанная]] Мартином Борковским, для того, чтобы направлять latex-фрагменты для редактирования в новый буфер с включённым latex-mode'ом
+
+      #+begin_src elisp :tangle ~/.emacs
+        (defun LaTeX-narrow-to-environment (&optional count)
+          "Narrow buffer to current LaTeX environment (or COUNT
+        environments around point)"
+          (interactive "p")
+          (LaTeX-mark-environment count)
+          (narrow-to-region (save-excursion
+                              (goto-char (region-beginning))
+                              (beginning-of-line)
+                              (point))
+                            (region-end))
+          (deactivate-mark))
+      #+end_src
+
+      Определим клавишную связку для вызова
+
+      #+begin_src elisp :tangle ~/.emacs
+        (eval-after-load 'latex
+          '(define-key LaTeX-mode-map (kbd "C-x n e")
+             'LaTeX-narrow-to-environment))
+      #+end_src
+
+      Я понял не правильно назначение этой функции. На самом деле она не отправляет выделенное в отдельный буфер с латех-модом, а определяет окружение латех в точке, и отправляет его с исходным модом.
+**** erlang
+***** Erlang-mode
+      :LOGBOOK:
+      CLOCK: [2015-09-10 Чт 21:53]--[2015-09-10 Чт 22:17] =>  0:24
+      :END:
+
+      #+begin_src elisp :tangle no
+        ;; Erlang mode
+        (setq load-path (cons "/usr/lib/erlang/lib/tools-2.8/emacs" load-path))
+        (setq erlang-root-dir "/usr/lib/erlang")
+        (setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
+        (require 'erlang-start)
+      #+end_src
+
+      Так как эрланг-мод появился теперь в мелпе, то установил его оттуда. [2015-09-10 Чт 21:53]
+      #+begin_src elisp :tangle ~/.emacs
+      (require 'erlang-start)
+      #+end_src
+***** erlang fly-make
+
+      #+begin_src elisp :tangle ~/em-conf
+        (require 'erlang-flymake)
+        (put 'upcase-region 'disabled nil)
+      #+end_src
+**** haskell
+
+***** haskell-mode
+
+      #+begin_src elisp :tangle ~/.emacs
+       ;;haskell-mode из официального репозитория
+
+       ;; установка хуков и включение режима автоматических отступов(identation mode)
+
+
+       (add-hook 'haskell-mode-hook 'turn-on-hi2)
+
+
+       (eval-after-load 'haskell-mode '(progn
+                                        (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
+                                        (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+                                        (define-key haskell-mode-map (kbd "C-c C-n C-t") 'haskell-process-do-type)
+                                        (define-key haskell-mode-map (kbd "C-c C-n C-i") 'haskell-process-do-info)
+                                        (define-key haskell-mode-map (kbd "C-c C-n C-c") 'haskell-process-cabal-build)
+                                        (define-key haskell-mode-map (kbd "C-c C-n c") 'haskell-process-cabal)
+                                        (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)))
+       (eval-after-load 'haskell-cabal '(progn
+                                         (define-key haskell-cabal-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+                                         (define-key haskell-cabal-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
+                                         (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
+                                         (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)))
+
+
+      #+end_src
+**** octave
+***** octave-mode
+      :LOGBOOK:
+      CLOCK: [2015-11-21 Сб 21:53]--[2015-11-21 Сб 22:06] =>  0:13
+      :END:
+
+      Установка автоассоциирования фалов с расширением m с octave-mode
+
+      #+begin_src elisp :tangle ~/.emacs
+        (setq auto-mode-alist
+              (cons '("\\.m$" . octave-mode) auto-mode-alist))
+      #+end_src
+
+      Установка хуков на автодополнение и пр. полезные вещи
+
+      #+begin_src elisp :tangle ~/.emacs
+        (add-hook 'octave-mode-hook
+                  (lambda ()
+                      (abbrev-mode 1)
+                      (auto-fill-mode 1)
+                      (if (eq windiow-system 'x)
+                          (font-lock-mode1 ))))
+      #+end_src
+***** ac-octave
+
+      [2015-11-21 Сб 22:06]
+
+      ac-octave -- auto-complete octave. Система автодополнений для языка octave
+
+      #+begin_src elisp :tangle ~/.emacs
+        (use-package ac-octave
+            :ensure t
+            :init
+            (require 'ac-octave)
+            (defun ac-octave-mode-setup ()
+                (setq ac-sources '(ac-source-octave)))
+            (add-hook 'octave-mode-hook
+                          '(lambda () (ac-octave-mode-setup))))
+      #+end_src
+
+**** Scala
+
+***** ensime
+
+      ENSIME (ENhanced Scala Interaction Mode for Emacs)
+
+      #+begin_src elisp :tangle ~/.emacs
+       (require 'ensime)
+       (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
+      #+end_src
+**** C/C++
+**** Maxima
      :LOGBOOK:
-     CLOCK: [2015-11-13 Пт 08:49]--[2015-11-13 Пт 08:54] =>  0:05
+     CLOCK: [2015-11-22 Вс 17:17]--[2015-11-22 Вс 18:05] =>  0:48
      :END:
 
-     Функция, [[http://mbork.pl/2014-11-15_LaTeX-narrow-to-environment][описанная]] Мартином Борковским, для того, чтобы направлять latex-фрагменты для редактирования в новый буфер с включённым latex-mode'ом
+     [2015-11-22 Вс 18:16]
+     Действую согласно [[http://www.emacswiki.org/emacs/MaximaMode][указаниям]] emacs-wiki.
 
      #+begin_src elisp :tangle ~/.emacs
-       (defun LaTeX-narrow-to-environment (&optional count)
-         "Narrow buffer to current LaTeX environment (or COUNT
-       environments around point)"
-         (interactive "p")
-         (LaTeX-mark-environment count)
-         (narrow-to-region (save-excursion
-                             (goto-char (region-beginning))
-                             (beginning-of-line)
-                             (point))
-                           (region-end))
-         (deactivate-mark))
+       (add-to-list 'load-path "/usr/share/emacs/site-lisp/maxima")
+       (autoload 'maxima-mode "maxima" "Maxima mode" t)
+       (autoload 'imaxima "imaxima" "Frontend for maxima with Image support" t)
+       (autoload 'maxima "maxima" "Maxima interaction" t)
+       (autoload 'imath-mode "imath" "Imath mode for math formula input" t)
+       (setq imaxima-use-maxima-mode-flag t)
+       (add-to-list 'auto-mode-alist '("\\.ma[cx]" . maxima-mode))
      #+end_src
 
-     Определим клавишную связку для вызова
-
-     #+begin_src elisp :tangle ~/.emacs
-       (eval-after-load 'latex
-         '(define-key LaTeX-mode-map (kbd "C-x n e")
-            'LaTeX-narrow-to-environment))
-     #+end_src
-
-     Я понял не правильно назначение этой функции. На самом деле она не отправляет выделенное в отдельный буфер с латех-модом, а определяет окружение латех в точке, и отправляет его с исходным модом.
-*** erlang
-**** Erlang-mode
+*** Общие средства
+**** CEDET
      :LOGBOOK:
-     CLOCK: [2015-09-10 Чт 21:53]--[2015-09-10 Чт 22:17] =>  0:24
+     CLOCK: [2015-11-22 Вс 14:53]--[2015-11-22 Вс 15:07] =>  0:14
      :END:
+
+     Частичная настройка [[http://alexott.net/ru/writings/emacs-devenv/EmacsCedet.html][по статье]] Алекса Отта
+
+     #+begin_src elisp :tangle ~/.emacs
+       ;; 13/03/15 -- 19:59
+
+       ;; CEDET settings Пакет CEDET — работа с C/C++/Java (прекрасная статья Alex Ott'a по CEDET):
+
+       (require 'cedet) ;; использую "вшитую" версию CEDET. Мне хватает...
+       (add-to-list 'semantic-default-submodes 'global-semanticdb-minor-mode)
+       (add-to-list 'semantic-default-submodes 'global-semantic-mru-bookmark-mode)
+       (add-to-list 'semantic-default-submodes 'global-semantic-idle-scheduler-mode)
+       (add-to-list 'semantic-default-submodes 'global-semantic-highlight-func-mode)
+       (add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
+       (add-to-list 'semantic-default-submodes 'global-semantic-show-parser-state-mode)
+       (semantic-mode   t)
+       (global-ede-mode t)
+       (require 'ede/generic)
+       (require 'semantic/ia)
+       (require 'semantic/bovine/gcc)
+       (ede-enable-generic-projects)
+
+       ;;14/03/2015 -- 18:25
+
+       ;;интеграция семантика CDET'а с imenu
+
+       (defun my-semantic-hook ()
+           (imenu-add-to-menubar "TAGS"))
+       (add-hook 'semantic-init-hooks 'my-semantic-hook)
+
+       ;;15/03/15 -- 09:05
+
+       ;; настройка semanticdb
+
+       ;; поддержка пакета gnu global
+       ;;(when (cedet-gnu-global-version-check t )
+       ;;    (semanticdb-enable-gnu-global-databases 'c-mode)
+       ;;    (semanticdb-enable-gnu-global-databases 'c++-mode))
+
+       ;; поддержка ctags для основных языков: unix shell, Perl, Pascal, Tcl, Frotran, Asm
+       ;;(when (cedet-ectag-version-check t)
+       ;;    (semantic-load-enable-primary-exuberent-ctags-support))
+
+       ;;строки выше закомментированы в силу того что пакет gnu global не настроен
+
+       ;;настройка EDE
+
+       (ede-cpp-root-project "Test"
+                             :name "Test Project"
+                             :file "~/EDE/CMakeLists.txt"
+                             :include-path '("/"
+                                             "/Common"
+                                             "/Interfaces"
+                                             "/Libs"
+                                             )
+                             :system-include-path '("~/exp/include")
+                             :spp-table '(("isUnix" . "")
+                                          ("BOOST_TEST_DYN_LINK" . "")))
+       ;;2015/03/20 -- 23:08
+       ;;вся проблема была в том, что в пути файла для :file была директория разделённая неэкранированным пробелом "Google drive". После перемещения в домашний каталог в папку EDE проблема самоустранилась
+
+     #+end_src
+
+     [2015-11-22 Вс 14:53]
+
+     Добавление по [[http://kostafey.blogspot.ru/2009/05/emaxima-emacs-maxima-emaxuma-auctex_3152.html][рекомендации]].
 
      #+begin_src elisp :tangle no
-       ;; Erlang mode
-       (setq load-path (cons "/usr/lib/erlang/lib/tools-2.8/emacs" load-path))
-       (setq erlang-root-dir "/usr/lib/erlang")
-       (setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
-       (require 'erlang-start)
+       (setq semantic-load-turn-useful-things-on t)
+       (global-set-key [?\C- ] 'semantic-ia-complete-symbol)
+
+       (defun my-semantic-hook-1 ()
+           (semantic-tag-folding-mode 1))
+       (add-hook 'semantic-init-hooks 'my-semantic-hook-1)
      #+end_src
 
-     Так как эрланг-мод появился теперь в мелпе, то установил его оттуда. [2015-09-10 Чт 21:53]
-     #+begin_src elisp :tangle ~/.emacs
-     (require 'erlang-start)
-     #+end_src
-**** erlang fly-make
-
-     #+begin_src elisp :tangle ~/em-conf
-       (require 'erlang-flymake)
-       (put 'upcase-region 'disabled nil)
-     #+end_src
-*** haskell
-
-**** haskell-mode
-
-     #+begin_src elisp :tangle ~/.emacs
-      ;;haskell-mode из официального репозитория
-
-      ;; установка хуков и включение режима автоматических отступов(identation mode)
-
-
-      (add-hook 'haskell-mode-hook 'turn-on-hi2)
-
-
-      (eval-after-load 'haskell-mode '(progn
-                                       (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
-                                       (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
-                                       (define-key haskell-mode-map (kbd "C-c C-n C-t") 'haskell-process-do-type)
-                                       (define-key haskell-mode-map (kbd "C-c C-n C-i") 'haskell-process-do-info)
-                                       (define-key haskell-mode-map (kbd "C-c C-n C-c") 'haskell-process-cabal-build)
-                                       (define-key haskell-mode-map (kbd "C-c C-n c") 'haskell-process-cabal)
-                                       (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)))
-      (eval-after-load 'haskell-cabal '(progn
-                                        (define-key haskell-cabal-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
-                                        (define-key haskell-cabal-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
-                                        (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
-                                        (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)))
-
-
-     #+end_src
-*** octave
-**** octave-mode
+     Судя по всему, на сегодняшний день([2015-11-22 Вс 15:02]) эти строки уже не актуальны. Поэтому, выключю их.
+**** ECB
      :LOGBOOK:
-     CLOCK: [2015-11-21 Сб 21:53]--[2015-11-21 Сб 22:06] =>  0:13
+     CLOCK: [2015-11-22 Вс 15:10]--[2015-11-22 Вс 15:21] =>  0:11
      :END:
 
-     Установка автоассоциирования фалов с расширением m с octave-mode
+     ECB -- emacs code browser. Пакет расширений, используемых для удобства навигации по файлам проектов на различных языках программирования.
+     [[http://ecb.sourceforge.net/][Официальный сайт]] расширения.
+
+     Настройка [[http://kostafey.blogspot.ru/2009/05/emaxima-emacs-maxima-emaxuma-auctex_3152.html][по инструкции]].
 
      #+begin_src elisp :tangle ~/.emacs
-       (setq auto-mode-alist
-             (cons '("\\.m$" . octave-mode) auto-mode-alist))
+              (use-package ecb
+                  :ensure t
+                  :init
+                  (require 'ecb)
+                  (global-set-key (kbd "C-c C-a") 'ecb-activate)
+                  (global-set-key (kbd "C-c C-q") 'ecb-deactivate)
+                  (global-set-key (kbd "C-M-m") 'ecb-goto-window-methods)
+                  (setq imenu-auto-rescan 1)
+                  (setq truncate-lines nil)
+                  (setq truncate-partial-width-windows nil)
+       ;;           ;;(setq ecb-auto-activate t)
+                   (setq ecb-options-version "2.40"))
      #+end_src
-
-     Установка хуков на автодополнение и пр. полезные вещи
-
-     #+begin_src elisp :tangle ~/.emacs
-       (add-hook 'octave-mode-hook
-                 (lambda ()
-                     (abbrev-mode 1)
-                     (auto-fill-mode 1)
-                     (if (eq windiow-system 'x)
-                         (font-lock-mode1 ))))
-     #+end_src
-**** ac-octave
+**** projectile
      :LOGBOOK:
-     CLOCK: [2015-11-21 Сб 22:06]
+     CLOCK: [2015-11-25 Ср 20:51]--[2015-11-25 Ср 21:04] =>  0:13
      :END:
 
-     [2015-11-21 Сб 22:06]
-
-     ac-octave -- auto-complete octave. Система автодополнений для языка octave
+     Расширение для упрощённой навигации по файлам различных проектов. Полезные [[http://tuhdo.github.io/helm-projectile.html][указания]]. Детектирует следы средств распределённой разработки такие как git и автоматически вносит их в список проектов.
 
      #+begin_src elisp :tangle ~/.emacs
-       (use-package ac-octave
+       (use-package projectile
            :ensure t
            :init
-           (require 'ac-octave)
-           (defun ac-octave-mode-setup ()
-               (setq ac-sources '(ac-source-octave)))
-           (add-hook 'octave-mode-hook
-                         '(lambda () (ac-octave-mode-setup))))
+           (projectile-global-mode))
      #+end_src
 
-*** Scala
-
-**** ensime
-
-     ENSIME (ENhanced Scala Interaction Mode for Emacs)
+     А так же helm-projectile как наиболее удобный интерфейс
 
      #+begin_src elisp :tangle ~/.emacs
-      (require 'ensime)
-      (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
+       (use-package helm-projectile
+           :ensure t
+           :init
+           (setq projectile-completion-system 'helm)
+           (helm-projectile-on))
      #+end_src
 
+     Все команды проджектайл начинаются с префикса C-c p;
+     C-c p h -- вывести список файлов проекта
+     C-c p p -- переключится между проектами
+
+
+     | Key Binding | Command                                     | Description                                                  |
+     |-------------+---------------------------------------------+--------------------------------------------------------------|
+     | C-c p h     | helm-projectile                             | Helm interface to projectile                                 |
+     | C-c p p     | helm-projectile-switch-project              | Switches to another projectile project                       |
+     | C-c p f     | helm-projectile-find-file                   | Lists all files in a project                                 |
+     | C-c p F     | helm-projectile-find-file-in-known-projects | Find file in all known projects                              |
+     | C-c p g     | helm-projectile-find-file-dwim              | Find file based on context at point                          |
+     | C-c p d     | helm-projectile-find-dir                    | Lists available directories in current project               |
+     | C-c p e     | helm-projectile-recentf                     | Lists recently opened files in current project               |
+     | C-c p a     | helm-projectile-find-other-file             | Switch between files with same name but different extensions |
+     | C-c p i     | projectile-invalidate-cache                 | Invalidate cache                                             |
+     | C-c p z     | projectile-cache-current-file               | Add the file of current selected buffer to cache             |
+     | C-c p b     | helm-projectile-switch-to-buffer            | List all open buffers in current project                     |
+     | C-c p s g   | helm-projectile-grep                        | Searches for symbol starting from project root               |
+     | C-c p s a   | helm-projectile-ack                         | Same as above but using ack                                  |
+     | C-c p s s   | helm-projectile-ag                          | Same as above but using ag                                   |
 
 ** yasnippet
 
@@ -711,70 +878,6 @@
      (setq linum-format " %d") ;; задаем формат нумерации строк
      (add-hook 'prog-mode-hook 'linum-on);; хук на прогерские режимы
    #+end_src
-** CEDET
-
-   Частичная настройка [[http://alexott.net/ru/writings/emacs-devenv/EmacsCedet.html][по статье]] Алекса Отта
-
-   #+begin_src elisp :tangle ~/.emacs
-     ;; 13/03/15 -- 19:59
-
-     ;; CEDET settings Пакет CEDET — работа с C/C++/Java (прекрасная статья Alex Ott'a по CEDET):
-
-     (require 'cedet) ;; использую "вшитую" версию CEDET. Мне хватает...
-     (add-to-list 'semantic-default-submodes 'global-semanticdb-minor-mode)
-     (add-to-list 'semantic-default-submodes 'global-semantic-mru-bookmark-mode)
-     (add-to-list 'semantic-default-submodes 'global-semantic-idle-scheduler-mode)
-     (add-to-list 'semantic-default-submodes 'global-semantic-highlight-func-mode)
-     (add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
-     (add-to-list 'semantic-default-submodes 'global-semantic-show-parser-state-mode)
-     (semantic-mode   t)
-     (global-ede-mode t)
-     (require 'ede/generic)
-     (require 'semantic/ia)
-     (require 'semantic/bovine/gcc)
-     (ede-enable-generic-projects)
-
-     ;;14/03/2015 -- 18:25
-
-     ;;интеграция семантика CDET'а с imenu
-
-     (defun my-semantic-hook ()
-         (imenu-add-to-menubar "TAGS"))
-     (add-hook 'semantic-init-hooks 'my-semantic-hook)
-
-     ;;15/03/15 -- 09:05
-
-     ;; настройка semanticdb
-
-     ;; поддержка пакета gnu global
-     ;;(when (cedet-gnu-global-version-check t )
-     ;;    (semanticdb-enable-gnu-global-databases 'c-mode)
-     ;;    (semanticdb-enable-gnu-global-databases 'c++-mode))
-
-     ;; поддержка ctags для основных языков: unix shell, Perl, Pascal, Tcl, Frotran, Asm
-     ;;(when (cedet-ectag-version-check t)
-     ;;    (semantic-load-enable-primary-exuberent-ctags-support))
-
-     ;;строки выше закомментированы в силу того что пакет gnu global не настроен
-
-     ;;настройка EDE
-
-     (ede-cpp-root-project "Test"
-                           :name "Test Project"
-                           :file "~/EDE/CMakeLists.txt"
-                           :include-path '("/"
-                                           "/Common"
-                                           "/Interfaces"
-                                           "/Libs"
-                                           )
-                           :system-include-path '("~/exp/include")
-                           :spp-table '(("isUnix" . "")
-                                        ("BOOST_TEST_DYN_LINK" . "")))
-     ;;2015/03/20 -- 23:08
-     ;;вся проблема была в том, что в пути файла для :file была директория разделённая неэкранированным пробелом "Google drive". После перемещения в домашний каталог в папку EDE проблема самоустранилась
-
-   #+end_src
-
 ** imenu
 
    #+BEGIN_SRC elisp :tangle ~/.emacs
@@ -1349,8 +1452,8 @@
        (global-set-key (kbd "C-c s") 'wcheck-mode)
        (global-set-key (kbd "C-c l") 'wcheck-change-language)
        (global-set-key (kbd "C-c c") 'wcheck-actions) ;; открывает лист вариантов правильного на взгляд орфографиста написания
-       (global-set-key (kbd "C-c n") 'wcheck-jump-forward)
-       (global-set-key (kbd "C-c p") 'wcheck-jump-backward)
+       (global-set-key (kbd "C-c С-с n") 'wcheck-jump-forward)
+       (global-set-key (kbd "C-c С-с p") 'wcheck-jump-backward)
      #+end_src
 ** window-numbering
 
@@ -1799,6 +1902,33 @@
          (global-set-key (kbd "C-c . b") 'goto-last-change)
          (global-set-key (kbd "C-c , b") 'goto-last-change-reverse))
    #+end_src
+** cursor-chg
+   :LOGBOOK:
+   CLOCK: [2015-11-24 Вт 14:56]--[2015-11-24 Вт 15:03] =>  0:07
+   :END:
+
+   [2015-11-24 Вт 15:03]
+   Расширение, которое изменяет курсор динамически в зависимости от контекста.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package cursor-chg
+         :ensure t
+         :init
+         (require 'cursor-chg)
+         (setq curchg-default-cursor-color "dark orange")
+         ;; Turn on cursor change when Emacs is idle
+         (toggle-cursor-type-when-idle 1)
+         ;; Turn on change for overwrite, read-only, and input mode
+         (change-cursor-mode 1)
+         (defun curchg-change-cursor-on-overwrite/read-only ()
+             "Set cursor type differently for overwrite mode, `view-mode', and read-only buffer.
+     That is, use one cursor type for overwrite mode and read-only buffers,
+     and another cursor type otherwise."
+             (curchg-set-cursor-type
+              (if (or buffer-read-only overwrite-mode view-mode)
+                  curchg-overwrite/read-only-cursor-type
+                  curchg-default-cursor-type))))
+   #+end_src
 
 * Тема оформления и шрифт
 ** Тема
@@ -1818,13 +1948,29 @@
           (load-theme 'cyberpunk t))
     #+end_src
 
+    [2015-11-02 Пн 19:27]
     Расскрасим курсор в оранжевый
 
-    #+begin_src elisp :tangle ~/.emacs
+    #+begin_src elisp
       (set-cursor-color "dark orange")
     #+end_src
 
-    [2015-11-02 Пн 19:27]
+    [2015-11-24 Вт 14:27]
+    Несколько изменю [[http://forums.debian.net/viewtopic.php?f=8&t=110336][формулировку]] указания цвета курсора. Полагаю, что поможет при решении проблемы с цветом курсора в новом фрейме.
+
+    #+begin_src elisp :tangle no
+      (setq default-frame-alist '((cursor-color . "DarkOrange")))
+    #+end_src
+
+    Не помогло.
+
+    Ещё одна
+
+    #+begin_src elisp :tangle no
+      (set-face-background 'cursor "DarkOrange")
+    #+end_src
+
+    В силу того, что я установил расширение cursor-chg, которое берёт на себя все настройки курсора, настройка курсора отдельно становится бессмысленной.
 *** COMMENT darcula + org-beautify-theme
 
     [2015-11-05 Чт 08:08]
