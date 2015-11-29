@@ -682,7 +682,6 @@
        (setq imaxima-use-maxima-mode-flag t)
        (add-to-list 'auto-mode-alist '("\\.ma[cx]" . maxima-mode))
      #+end_src
-
 *** Общие средства
 **** CEDET
      :LOGBOOK:
@@ -810,7 +809,8 @@
            :ensure t
            :init
            (setq projectile-completion-system 'helm)
-           (helm-projectile-on))
+           (helm-projectile-on)
+           (global-set-key (kbd "C-c p h") 'helm-projectile))
      #+end_src
 
      Все команды проджектайл начинаются с префикса C-c p;
@@ -834,14 +834,13 @@
      | C-c p s g   | helm-projectile-grep                        | Searches for symbol starting from project root               |
      | C-c p s a   | helm-projectile-ack                         | Same as above but using ack                                  |
      | C-c p s s   | helm-projectile-ag                          | Same as above but using ag                                   |
+**** yasnippet
 
-** yasnippet
-
-   #+BEGIN_SRC elisp :tangle ~/.emacs
-     ;;start yasnippet with emacs
-     (require 'yasnippet)
-     (yas-global-mode 1)
-   #+END_SRC
+     #+BEGIN_SRC elisp :tangle ~/.emacs
+       ;;start yasnippet with emacs
+       (require 'yasnippet)
+       (yas-global-mode 1)
+     #+END_SRC
 
 ** iedit-mode
 
@@ -1928,6 +1927,33 @@
               (if (or buffer-read-only overwrite-mode view-mode)
                   curchg-overwrite/read-only-cursor-type
                   curchg-default-cursor-type))))
+   #+end_src
+** winner-mode
+
+   Это расширение позволяет возвращаться к предыдущей конфигурации окон по комбинации "C-c ←" и "C-c →". Переключился между буферами, убрал какой-нибудь сплит? Теперь всё это поравимо с помощью winner-mode.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (winner-mode 1)
+   #+end_src
+** which-key
+   - Note taken on [2015-11-29 Вс 06:54] \\
+     Выглядит этот так
+     [[file:pictures/which-key-right.png][file:~/Dropbox/Config/Emacs/git-main-config/pictures/which-key-right.png]]
+   :LOGBOOK:
+   CLOCK: [2015-11-29 Вс 06:50]
+   :END:
+
+   [2015-11-29 Вс 06:50]
+
+   Расширение, которое показывает все клавиатурные сочетания, начинающиеся с заданого.
+   [[http://pragmaticemacs.com/emacs/get-pop-up-help-for-keybindings-with-which-key/][Первоисточник]]. [[https://github.com/justbur/emacs-which-key][Гит]] приложения.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package which-key
+         :ensure t
+         :init
+         (which-key-mode)
+         (which-key-setup-side-window-right))
    #+end_src
 
 * Тема оформления и шрифт
