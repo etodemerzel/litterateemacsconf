@@ -396,6 +396,7 @@
    #+END_SRC
 
    Из-за того, что общая инициализация auto-complete оказалась ниже подключения ac-mode  для auctex'а, возникла ошибка.[2015-07-06 Пн 11:36]
+
 ** subword & superword mode
    CLOCK: [2015-08-27 Чт 12:55]--[2015-08-27 Чт 13:33] =>  0:38
    CLOCK: [2015-08-27 Чт 12:07]--[2015-08-27 Чт 12:42] =>  0:35
@@ -834,6 +835,7 @@
      | C-c p s g   | helm-projectile-grep                        | Searches for symbol starting from project root               |
      | C-c p s a   | helm-projectile-ack                         | Same as above but using ack                                  |
      | C-c p s s   | helm-projectile-ag                          | Same as above but using ag                                   |
+
 **** yasnippet
 
      #+BEGIN_SRC elisp :tangle ~/.emacs
@@ -841,6 +843,20 @@
        (require 'yasnippet)
        (yas-global-mode 1)
      #+END_SRC
+**** hightlighting-identation
+     :LOGBOOK:
+     CLOCK: [2015-12-01 Вт 08:30]
+     :END:
+
+     Расширение для подсветки отступов. [[https://github.com/antonj/Highlight-Indentation-for-Emacs][Гит]] расширения.
+
+     #+begin_src elisp :tangle ~/.emacs
+       (use-package highlight-indentation
+           :ensure t
+           :init
+           (highlight-indentation-mode 1)
+           (highlight-indentation-current-column-mode 1))
+     #+end_src
 
 ** iedit-mode
 
@@ -1756,7 +1772,7 @@
                   '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
                   '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
    #+end_src
-** perspective
+** COMMENT perspective
    :LOGBOOK:
    CLOCK: [2015-10-08 Чт 12:56]--[2015-10-08 Чт 13:00] =>  0:04
    :END:
@@ -1768,6 +1784,9 @@
      (persp-mode)
    #+end_src
 
+   [2015-11-30 Пн 08:24]
+
+   Отключаю за ненадобностью.
 ** tiny
    :LOGBOOK:
    CLOCK: [2015-10-21 Ср 20:07]--[2015-10-21 Ср 21:20] =>  1:13
@@ -1940,7 +1959,7 @@
      Выглядит этот так
      [[file:pictures/which-key-right.png][file:~/Dropbox/Config/Emacs/git-main-config/pictures/which-key-right.png]]
    :LOGBOOK:
-   CLOCK: [2015-11-29 Вс 06:50]
+   CLOCK: [2015-11-29 Вс 06:50]--[2015-11-29 Вс 07:20] =>  0:30
    :END:
 
    [2015-11-29 Вс 06:50]
@@ -1955,7 +1974,16 @@
          (which-key-mode)
          (which-key-setup-side-window-right))
    #+end_src
+** darkroom-mode
+   :LOGBOOK:
+   CLOCK: [2015-11-29 Вс 11:36]--[2015-11-29 Вс 11:44] =>  0:08
+   :END:
 
+   Расширение которое просто берёт и концентрирует внимание на набираемом тексте.
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package darkroom
+         :ensure t)
+   #+end_src
 * Тема оформления и шрифт
 ** Тема
    :LOGBOOK:
