@@ -205,6 +205,7 @@
      #+begin_src elisp :tangle ~/.emacs
        (custom-set-variables '(read-quoted-char-radix 16))
      #+end_src
+
 *** Синтаксис
 **** Цветовое  выделение выражение между скобками((),{},[])
 
@@ -489,6 +490,8 @@
         (add-hook 'TeX-mode-hook 'company-mode) ;; подгружает company-auctex только в auctex моде. то что нужно
       #+end_src
 
+      [2015-12-02 Ср 09:35]
+      Вообще, company это система автодополнения на все случаи жизни для многих языков программирования. Однако, её можно настроить и для не программистских случаев. По [[http://blog.binchen.org/posts/emacs-auto-completion-for-non-programmers.html][ссылке]] показано, как настроить company для автодополнения слов естественного языка в org-mode.
 ***** auto-complete-mode for auctex
 
       auto-complete-mode это режим интерактивных подсказок-автодополнений на все случаи жизни. Существует ac-mode даже для org-mode,  хотя казалось бы.
@@ -845,7 +848,7 @@
      #+END_SRC
 **** hightlighting-identation
      :LOGBOOK:
-     CLOCK: [2015-12-01 Вт 08:30]
+     CLOCK: [2015-12-01 Вт 08:30]--[2015-12-01 Вт 08:51] =>  0:21
      :END:
 
      Расширение для подсветки отступов. [[https://github.com/antonj/Highlight-Indentation-for-Emacs][Гит]] расширения.
@@ -856,6 +859,23 @@
            :init
            (highlight-indentation-mode 1)
            (highlight-indentation-current-column-mode 1))
+     #+end_src
+**** multi-line
+     :LOGBOOK:
+     CLOCK: [2015-12-01 Вт 10:12]--[2015-12-01 Вт 10:19] =>  0:07
+     CLOCK: [2015-12-01 Вт 08:58]--[2015-12-01 Вт 08:58] =>  0:00
+     :END:
+
+     [2015-12-01 Вт 10:14]
+     Расширение, которое позволяет в некоторых языках рабивать большие строки на более читаемые колонки строк поменьше. Поддерживает несколько языков программирования, включая с/с++
+     [[https://github.com/IvanMalison/multi-line/][Гит]] расширения.
+
+     #+begin_src elisp :tangle ~/.emacs
+       (use-package multi-line
+           :ensure t
+           :init
+           (require 'multi-line)
+           (global-set-key (kbd "C-c f") 'multi-line))
      #+end_src
 
 ** iedit-mode
@@ -1171,9 +1191,14 @@
 
     #+begin_src elisp :tangle ~/.emacs
       (define-key global-map (kbd "C-c g") 'org-capture)
+      ;;(setq org-capture-templates
+      ;;      '(("t" "todo" entry (file+headline  "Задачи")
+      ;;         "* TODO [#A] %?")))
+      ;;
+      ;;[2015-12-08 Вт 21:00]
       (setq org-capture-templates
-            '(("t" "todo" entry (file+headline "~/Dropbox/notes/org/stack.org" "Tasks")
-               "* TODO [#A] %?")))
+            '(("t" "todo" entry (file+headline "~/Dropbox/notes/org/stack.org" "Задачи")
+               "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")))
     #+end_src
 
     Определение состояний выполнения задания. Добавляю INPR -- в процессе выполнения, DROP -- брошено.
@@ -1190,6 +1215,65 @@
       (setq org-todo-keyword-faces
             (quote (("INPR" :foreground "yellow" :weight bold)
                     ("DROP" :foreground "cyan" :weight bold))))
+    #+end_src
+
+    [2015-12-08 Вт 21:00]
+
+    Настройки из [[http://pragmaticemacs.com/emacs/org-mode-basics-vii-a-todo-list-with-schedules-and-deadlines/][поста]]
+
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;;warn me of any deadlines in next 7 days
+      (setq org-deadline-warning-days 7)
+      ;;show me tasks scheduled or due in next fortnight
+      (setq org-agenda-span (quote fortnight))
+      ;;don't show tasks as scheduled if they are already shown as a deadline
+      (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+      ;;don't give awarning colour to tasks with impending deadlines
+      ;;if they are scheduled to be done
+      (setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
+      ;;don't show tasks that are scheduled or have deadlines in the
+      ;;normal todo list
+      (setq org-agenda-todo-ignore-deadlines (quote all))
+      (setq org-agenda-todo-ignore-scheduled (quote all))
+      ;;sort tasks in order of when they are due and then by priority
+      (setq org-agenda-sorting-strategy
+        (quote
+         ((agenda deadline-up priority-down)
+          (todo priority-down category-keep)
+          (tags priority-down category-keep)
+          (search category-keep))))
+    #+end_src
+
+*** beamer экспорт
+
+
+    #+begin_src elisp :tangle ~/.emacs
+      (require 'ox-latex)
+      (add-to-list 'org-latex-classes
+                   '("beamer"
+                     "\\documentclass\[presentation\]\{beamer\}"
+                     ("\\section\{%s\}" . "\\section*\{%s\}")
+                     ("\\subsection\{%s\}" . "\\subsection*\{%s\}")
+                     ("\\subsubsection\{%s\}" . "\\subsubsection*\{%s\}")))
+    #+end_src
+
+
+    #+begin_src elisp :tangle no
+      (defun my-beamer-bold (contents backend info)
+        (when (eq backend 'beamer)
+          (replace-regexp-in-string "\\`\\\\[A-Za-z0-9]+" "\\\\textbf" contents)))
+
+      (add-to-list 'org-export-filter-bold-functions 'my-beamer-bold)
+    #+end_src
+
+
+    #+begin_src elisp :tangle no
+      (defun my-beamer-structure (contents backend info)
+        (when (eq backend 'beamer)
+          (replace-regexp-in-string "\\`\\\\[A-Za-z0-9]+" "\\\\structure" contents)))
+
+      (add-to-list 'org-export-filter-strike-through-functions 'my-beamer-structure)
     #+end_src
 ** COMMENT ido
 
