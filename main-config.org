@@ -845,6 +845,10 @@
        ;;start yasnippet with emacs
        (require 'yasnippet)
        (yas-global-mode 1)
+       ;;[2016-01-04 Пн 10:05] указание на папку со сниппетами
+       (setq yas-snippet-dirs '(
+               "~/.emacs.d/snippets" ;personal snippets
+               ))
      #+END_SRC
 **** hightlighting-identation
      :LOGBOOK:
@@ -877,52 +881,6 @@
            (require 'multi-line)
            (global-set-key (kbd "C-c f") 'multi-line))
      #+end_src
-
-** iedit-mode
-
-   #+BEGIN_SRC elisp :tangle ~/.emacs
-     ;;iedit-mode
-
-     (define-key global-map (kbd "C-c ;") 'iedit-mode)
-   #+END_SRC
-
-** linum-plugin
-
-
-   #+BEGIN_SRC elisp :tangle no
-     ;;12/03/15 -- 22:01
-
-     ;; Linum plugin -- стандартная нумерация строк
-
-     (require 'linum) ;; вызвать Linum
-     (line-number-mode   t) ;; показать номер строки в mode-line
-     (global-linum-mode  t) ;; показывать номера строк во всех буферах
-     (column-number-mode t) ;; показать номер столбца в mode-line
-     (setq linum-format " %d") ;; задаем формат нумерации строк
-   #+END_SRC
-
-
-   [2015-11-05 Чт 03:39]
-   В силу того что linum-mode значительно замедляет работу буферов с большим количеством строк(порядка 2500 и больше), я отключу его глобально. Но оставлю для программерских модов.
-
-   #+begin_src elisp :tangle ~/.emacs
-     (require 'linum)
-     (line-number-mode   t) ;; показать номер строки в mode-line
-     ;;(global-linum-mode  t) ;; показывать номера строк во всех буферах с [2015-11-05 Чт 03:45] отключено
-     (column-number-mode t) ;; показать номер столбца в mode-line
-     (setq linum-format " %d") ;; задаем формат нумерации строк
-     (add-hook 'prog-mode-hook 'linum-on);; хук на прогерские режимы
-   #+end_src
-** imenu
-
-   #+BEGIN_SRC elisp :tangle ~/.emacs
-     ;;Imenu -- навигация по функциям в различных языках программирования
-
-     (require 'imenu)
-     (setq imenu-auto-rescan           t) ;; автоматически обновлять список функций в буфере
-     (setq imenu-use-popup-menu      nil) ;; диалоги Imenu только в минибуфере
-     (global-set-key (kbd "<f6>") 'imenu) ;; вызов Imenu на F6
-   #+END_SRC
 
 ** org-mode
 *** основной режим org-mode
@@ -1244,7 +1202,6 @@
           (tags priority-down category-keep)
           (search category-keep))))
     #+end_src
-
 *** beamer экспорт
 
 
@@ -1275,6 +1232,150 @@
 
       (add-to-list 'org-export-filter-strike-through-functions 'my-beamer-structure)
     #+end_src
+*** org-ref
+    :LOGBOOK:
+    CLOCK: [2015-09-25 Пт 21:44]--[2015-09-25 Пт 21:51] =>  0:07
+    CLOCK: [2015-09-25 Пт 16:31]--[2015-09-25 Пт 16:43] =>  0:12
+    CLOCK: [2015-09-25 Пт 16:08]--[2015-09-25 Пт 16:16] =>  0:08
+    :END:
+
+    Многофункциональная библиотека для работы с библиографическими ссылками в орг-мод. Так как Джону Китчину пока что не удалось продвинуть этот пакет в melpa, то для установки необходимо скопировать [[https://github.com/jkitchin/org-ref][гит-папку org-ref]](я скопировал в имакс [[file:~/.emacs.d/org-ref][папку]]).
+
+    #+begin_src elisp
+      ;;initialize org-ref
+      (add-to-list 'load-path "~/.emacs.d/org-ref")
+      ;; make sure you have dash, helm, helm-bibtex, ebib, s, f, hydra and key-chord
+      ;; in your load-path
+      (require 'org-ref)
+    #+end_src
+
+    [2016-01-07 Чт 18:31]
+    Пакет org-ref наконец-то был добавлен в MELPA
+
+    #+begin_src elisp :tangle ~/.emacs
+      (use-package org-ref
+          :ensure t
+          :init
+          (require 'org-ref))
+    #+end_src
+
+    Указание местоположения библиографий.
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;;bibliography
+
+      (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
+
+      ;; see org-ref for use of these variables
+      (setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
+            org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
+            org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
+
+    #+end_src
+
+    Параметры для helm
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;; *** helm-bibtex
+
+      (setq helm-bibtex-bibliography "~/Dropbox/bibliography/references.bib")
+      (setq helm-bibtex-library-path "~/Dropbox/bibliography/bibtex-pdfs")
+      (setq helm-bibtex-notes-path "~/Dropbox/bibliography/helm-bibtex-notes")
+    #+end_src
+
+    Горячие клавиши
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;;key for bibtex
+
+      (global-set-key (kbd "<f1> 1") 'org-ref-open-bibtex-notes)
+      (global-set-key (kbd "<f1> 2") 'org-ref-open-bibtex-pdf)
+      (global-set-key (kbd "<f1> 3") 'org-ref-open-in-browser)
+
+    #+end_src
+
+    Просмотр pdf средствами системного вьюера
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;; open pdf with system pdf viewer (works on mac)
+      (setq helm-bibtex-pdf-open-function
+        (lambda (fpath)
+          (start-process "open" "*open*" "open" fpath)))
+
+      ;; alternative
+      ;; (setq helm-bibtex-pdf-open-function 'org-open-file)
+    #+end_src
+
+    Подключение дополнительных библиотек
+
+    #+begin_src elisp
+      ;; optional but very useful libraries in org-ref
+      (require 'doi-utils)
+      (require 'jmax-bibtex)
+      (require 'pubmed)
+      (require 'arxiv)
+      (require 'sci-id)
+
+    #+end_src
+
+*** ox-twbs
+
+    [2016-01-22 Пт 05:10]
+    Средство улучшения экспорта из org в html. [[http://irreal.org/blog/?p=4899][Из заметки]].
+
+
+    #+begin_src elisp :tangle ~/.emacs
+      (use-package ox-twbs
+          :ensure t)
+    #+end_src
+
+    Чтобы воспользоваться экспортом с помощью этого расширения, необходимо будучи в нужно буфере орг-документа вызвать из командной строки emacs функцию org-twbs-export-to-html.
+** iedit-mode
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     ;;iedit-mode
+
+     (define-key global-map (kbd "C-c ;") 'iedit-mode)
+   #+END_SRC
+
+** linum-plugin
+
+
+   #+BEGIN_SRC elisp :tangle no
+     ;;12/03/15 -- 22:01
+
+     ;; Linum plugin -- стандартная нумерация строк
+
+     (require 'linum) ;; вызвать Linum
+     (line-number-mode   t) ;; показать номер строки в mode-line
+     (global-linum-mode  t) ;; показывать номера строк во всех буферах
+     (column-number-mode t) ;; показать номер столбца в mode-line
+     (setq linum-format " %d") ;; задаем формат нумерации строк
+   #+END_SRC
+
+
+   [2015-11-05 Чт 03:39]
+   В силу того что linum-mode значительно замедляет работу буферов с большим количеством строк(порядка 2500 и больше), я отключу его глобально. Но оставлю для программерских модов.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (require 'linum)
+     (line-number-mode   t) ;; показать номер строки в mode-line
+     ;;(global-linum-mode  t) ;; показывать номера строк во всех буферах с [2015-11-05 Чт 03:45] отключено
+     (column-number-mode t) ;; показать номер столбца в mode-line
+     (setq linum-format " %d") ;; задаем формат нумерации строк
+     (add-hook 'prog-mode-hook 'linum-on);; хук на прогерские режимы
+   #+end_src
+** imenu
+
+   #+BEGIN_SRC elisp :tangle ~/.emacs
+     ;;Imenu -- навигация по функциям в различных языках программирования
+
+     (require 'imenu)
+     (setq imenu-auto-rescan           t) ;; автоматически обновлять список функций в буфере
+     (setq imenu-use-popup-menu      nil) ;; диалоги Imenu только в минибуфере
+     (global-set-key (kbd "<f6>") 'imenu) ;; вызов Imenu на F6
+   #+END_SRC
+
 ** COMMENT ido
 
    ido -- расширение для интерактивной работы с минибуфером. Это расширение выводит в минибуфер все потенциальные варианты(имён файлов, команд et cetera) содержащие введённе пользователем символы. Этакое автодополнение.
@@ -1683,6 +1784,21 @@
    #+end_src
 
    [2015-09-23 Ср 13:26] Опцию 'avy-goto-char-timer подсмотрел по [[https://tsdh.wordpress.com/2015/09/17/improving-avy-goto-char-timer/][ссылке]]. В той же статье рассматривается как изменить интервал таймера ввода.
+*** avy-menu
+    :LOGBOOK:
+    CLOCK: [2016-02-02 Вт 14:34]--[2016-02-02 Вт 14:37] =>  0:03
+    :END:
+
+    [2016-02-02 Вт 14:36]
+    Всплывающее меню для ави. [[https://github.com/mrkkrp/avy-menu][Репозиторий]].
+
+    #+begin_src elisp :tangle ~/.emacs
+      (use-package avy-menu
+          :ensure t
+          :init
+          (require 'avy-menu))
+    #+end_src
+
 ** bookmark plus
    :LOGBOOK:
    CLOCK: [2015-09-21 Пн 13:07]--[2015-09-21 Пн 13:08] =>  0:01
@@ -1739,81 +1855,6 @@
        (interactive)
        (let ((fill-column (point-max)))
          (fill-paragraph nil t)))
-   #+end_src
-** org-ref
-   :LOGBOOK:
-   CLOCK: [2015-09-25 Пт 21:44]--[2015-09-25 Пт 21:51] =>  0:07
-   CLOCK: [2015-09-25 Пт 16:31]--[2015-09-25 Пт 16:43] =>  0:12
-   CLOCK: [2015-09-25 Пт 16:08]--[2015-09-25 Пт 16:16] =>  0:08
-   :END:
-
-   Многофункциональная библиотека для работы с библиографическими ссылками в орг-мод. Так как Джону Китчину пока что не удалось продвинуть этот пакет в melpa, то для установки необходимо скопировать [[https://github.com/jkitchin/org-ref][гит-папку org-ref]](я скопировал в имакс [[file:~/.emacs.d/org-ref][папку]]).
-
-   #+begin_src elisp :tangle ~/.emacs
-     ;;initialize org-ref
-     (add-to-list 'load-path "~/.emacs.d/org-ref")
-     ;; make sure you have dash, helm, helm-bibtex, ebib, s, f, hydra and key-chord
-     ;; in your load-path
-     (require 'org-ref)
-   #+end_src
-
-   Указание местоположения библиографий.
-
-   #+begin_src elisp :tangle ~/.emacs
-     ;;bibliography
-
-     (setq reftex-default-bibliography '("~/Dropbox/bibliography/references.bib"))
-
-     ;; see org-ref for use of these variables
-     (setq org-ref-bibliography-notes "~/Dropbox/bibliography/notes.org"
-           org-ref-default-bibliography '("~/Dropbox/bibliography/references.bib")
-           org-ref-pdf-directory "~/Dropbox/bibliography/bibtex-pdfs/")
-
-   #+end_src
-
-   Параметры для helm
-
-   #+begin_src elisp :tangle ~/.emacs
-     ;; *** helm-bibtex
-
-     (setq helm-bibtex-bibliography "~/Dropbox/bibliography/references.bib")
-     (setq helm-bibtex-library-path "~/Dropbox/bibliography/bibtex-pdfs")
-     (setq helm-bibtex-notes-path "~/Dropbox/bibliography/helm-bibtex-notes")
-   #+end_src
-
-   Горячие клавиши
-
-   #+begin_src elisp :tangle ~/.emacs
-     ;;key for bibtex
-
-     (global-set-key (kbd "<f1> 1") 'org-ref-open-bibtex-notes)
-     (global-set-key (kbd "<f1> 2") 'org-ref-open-bibtex-pdf)
-     (global-set-key (kbd "<f1> 3") 'org-ref-open-in-browser)
-
-   #+end_src
-
-   Просмотр pdf средствами системного вьюера
-
-   #+begin_src elisp :tangle ~/.emacs
-     ;; open pdf with system pdf viewer (works on mac)
-     (setq helm-bibtex-pdf-open-function
-       (lambda (fpath)
-         (start-process "open" "*open*" "open" fpath)))
-
-     ;; alternative
-     ;; (setq helm-bibtex-pdf-open-function 'org-open-file)
-   #+end_src
-
-   Подключение дополнительных библиотек
-
-   #+begin_src elisp :tangle ~/.emacs
-     ;; optional but very useful libraries in org-ref
-     (require 'doi-utils)
-     (require 'jmax-bibtex)
-     (require 'pubmed)
-     (require 'arxiv)
-     (require 'sci-id)
-
    #+end_src
 ** rainbow delimiters
    :LOGBOOK:
@@ -2075,7 +2116,7 @@
    :END:
 
    Кажется я нашёл способ разделить настройку цевтовой темы и шрифта
-*** Cyberpunk+оранжевый курсор
+*** COMMENT Cyberpunk+оранжевый курсор
 
     Контрастная полноцветная схема с поодержкой org-mode(подсвечивает оргмодовские элементы)
 
@@ -2126,7 +2167,41 @@
           :init
           (load-theme 'org-beautify-theme t))
     #+END_SRC
-** Шрифт
+*** COMMENT org-beautify
+    :LOGBOOK:
+    CLOCK: [2016-01-04 Пн 10:36]--[2016-01-04 Пн 10:37] =>  0:01
+    :END:
+
+
+    #+begin_src elisp :tangle ~/.emacs
+      (use-package org-beautify-theme
+          :ensure t
+          :init
+          (org-beautify-theme))
+    #+end_src
+*** moe-theme
+    :LOGBOOK:
+    CLOCK: [2016-01-04 Пн 10:12]--[2016-01-04 Пн 10:16] =>  0:04
+    CLOCK: [2016-01-04 Пн 10:05]--[2016-01-04 Пн 10:10] =>  0:05
+    :END:
+
+    [2016-01-04 Пн 10:06]
+    Так как с новыми монитором старая тема стала просто вырви-глаз, решил переключится на менее контрастную и более "пастельную" тему.
+
+
+    #+begin_src elisp :tangle ~/.emacs
+      (use-package moe-theme
+          :ensure t
+          :init
+          (require 'moe-theme)
+          (load-theme 'moe-dark t)
+          (powerline-moe-theme))
+    #+end_src
+
+
+
+
+** COMMENT Шрифт
    :LOGBOOK:
    CLOCK: [2015-11-02 Пн 19:28]--[2015-11-02 Пн 19:32] =>  0:04
    :END:

@@ -205,6 +205,7 @@
      #+begin_src elisp :tangle ~/.emacs
        (custom-set-variables '(read-quoted-char-radix 16))
      #+end_src
+
 *** Синтаксис
 **** Цветовое  выделение выражение между скобками((),{},[])
 
@@ -288,6 +289,54 @@
     #+BEGIN_SRC elisp :tangle ~/.emacs
       (global-auto-revert-mode t)
     #+END_SRC
+*** Перемещение фрейма клавишами
+
+    [2015-11-07 Сб 06:25]
+    Для работы этого скрипта необходим дополнительный пакет
+
+    #+begin_src elisp :tangle ~/.emacs
+      (use-package frame-cmds
+          :ensure t)
+    #+end_src
+
+    [[http://pragmaticemacs.com/emacs/resize-your-emacs-frame-with-keyboard-shortcuts/][Согласно инструкции]].
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;;[2015-11-07 Сб 06:26]
+      (defun bjm-frame-resize-l ()
+        "set frame full height and 86 columns wide and position at screen left"
+        (interactive)
+        (set-frame-width (selected-frame) 86)
+        (maximize-frame-vertically)
+        (set-frame-position (selected-frame) 0 0)
+        )
+
+      ;;set frame full height and 86 columns wide
+      ;;and position at screen right
+      (defun bjm-frame-resize-r ()
+        "set frame full height and 86 columns wide and position at screen right"
+        (interactive)
+        (set-frame-width (selected-frame) 86)
+        (maximize-frame-vertically)
+        (set-frame-position (selected-frame) (- (display-pixel-width) (frame-pixel-width)) 0)
+        )
+
+      ;;set frame full height and 86 columns wide
+      ;;and position at screen right of left hand screen in 2 monitor display
+      ;;assumes monitors are same resolution
+      (defun bjm-frame-resize-r2 ()
+        "set frame full height and 86 columns wide and position at screen right of left hand screen in 2 monitor display assumes monitors are same resolution"
+        (interactive)
+        (set-frame-width (selected-frame) 86)
+        (maximize-frame-vertically)
+        (set-frame-position (selected-frame) (- (/ (display-pixel-width) 2) (frame-pixel-width)) 0)
+        )
+
+      ;;set keybindings
+      (global-set-key (kbd "C-c C-b <left>") 'bjm-frame-resize-l)
+      (global-set-key (kbd "C-c C-b <right>") 'bjm-frame-resize-r)
+      (global-set-key (kbd "C-c C-b <S-right>") 'bjm-frame-resize-r2)
+    #+end_src
 ** Закладки
 
    #+begin_src elisp :tangle ~/.emacs
@@ -303,7 +352,6 @@
      (setq bookmark-default-file (concat user-emacs-directory "bookmarks")) ;; хранить закладки в файл bookmarks в .emacs.d
 
    #+end_src
-
 ** Краткое подтверждение
    :LOGBOOK:
    CLOCK: [2015-09-23 Ср 19:03]--[2015-09-23 Ср 19:07] =>  0:04
@@ -312,6 +360,21 @@
    #+begin_src elisp :tangle ~/.emacs
      (fset 'yes-or-no-p 'y-or-n-p)
    #+end_src
+
+** Навигация по тексту
+
+*** предыдущую строку вверх
+
+    [2015-11-07 Сб 04:07]
+    Обозначу перенос строки целиком(независимо от положения курсора в самой строке) сочетанием M-j. На M-j уже назначена дублированная на C-M-j команда новой строки. Поэтому сочетание M-j можно занять без угрызений совести. [[http://pragmaticemacs.com/emacs/join-line-to-following-line/][Адресс рецепта]]. Это сочетание присоединяет низлежащую строку к текущей.
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;; join line to next line [2015-11-07 Сб 04:10]
+      (global-set-key (kbd "M-j")
+                  (lambda ()
+                        (interactive)
+                        (join-line -1)))
+    #+end_src
 * Расширения
 ** auto-complete
 
@@ -334,6 +397,7 @@
    #+END_SRC
 
    Из-за того, что общая инициализация auto-complete оказалась ниже подключения ac-mode  для auctex'а, возникла ошибка.[2015-07-06 Пн 11:36]
+
 ** subword & superword mode
    CLOCK: [2015-08-27 Чт 12:55]--[2015-08-27 Чт 13:33] =>  0:38
    CLOCK: [2015-08-27 Чт 12:07]--[2015-08-27 Чт 12:42] =>  0:35
@@ -386,120 +450,433 @@
       (superword-mode 0);; 1 включено, 0 выключено
     #+end_src
 ** Средства разработки
-*** LaTeX
-**** Auctex
+*** Языки
+**** LaTeX
+***** Auctex
 
-     Подключение auctex и задание начальных опций
+      Подключение auctex и задание начальных опций
 
-     #+begin_src elisp :tangle ~/.emacs
-        ;;14/04/2015
+      #+begin_src elisp :tangle ~/.emacs
+         ;;14/04/2015
 
-       ;;Actex
-       (require 'tex-site)
-       ;;(add-hook 'TeX-mode-hook
-       ;;          '(lambda ()
-       ;;            (local-set-key "\\" 'TeX-electric-macro )))
+        ;;Actex
+        (require 'tex-site)
+        ;;(add-hook 'TeX-mode-hook
+        ;;          '(lambda ()
+        ;;            (local-set-key "\\" 'TeX-electric-macro )))
 
-       ;;11/05/15 -- 14:32
-       (setq-default TeX-master nil);;опция указывающая auctex спрашивать каждый раз имя главного файла, на случай если я злоупотребляю input и include
-     #+end_src
+        ;;11/05/15 -- 14:32
+        (setq-default TeX-master nil);;опция указывающая auctex спрашивать каждый раз имя главного файла, на случай если я злоупотребляю input и include
+      #+end_src
 
-     Настройка программы просмотра для tex2pdf
+      Настройка программы просмотра для tex2pdf
 
-     #+begin_src elisp :tangle ~/.emacs
+      #+begin_src elisp :tangle ~/.emacs
 
-       ;;07/05/2015 -- 10:30
+        ;;07/05/2015 -- 10:30
 
-       (setq TeX-view-program-selection
-             '((output-pdf "PDF Viewer")))
-       (setq TeX-view-program-list
-             '(("PDF Viewer" "okular %o")))
-     #+end_src
+        (setq TeX-view-program-selection
+              '((output-pdf "PDF Viewer")))
+        (setq TeX-view-program-list
+              '(("PDF Viewer" "okular %o")))
+      #+end_src
 
-**** company-mode для auctex
+***** company-mode для auctex
 
-     #+begin_src elisp :tangle ~/.emacs
-       ;;30/04/15 12:32
-       (company-auctex-init)
-       ;;30/04/15 -- 23:02
-       (add-hook 'TeX-mode-hook 'company-mode) ;; подгружает company-auctex только в auctex моде. то что нужно
-     #+end_src
+      #+begin_src elisp :tangle ~/.emacs
+        ;;30/04/15 12:32
+        (company-auctex-init)
+        ;;30/04/15 -- 23:02
+        (add-hook 'TeX-mode-hook 'company-mode) ;; подгружает company-auctex только в auctex моде. то что нужно
+      #+end_src
 
-**** auto-complete-mode for auctex
+      [2015-12-02 Ср 09:35]
+      Вообще, company это система автодополнения на все случаи жизни для многих языков программирования. Однако, её можно настроить и для не программистских случаев. По [[http://blog.binchen.org/posts/emacs-auto-completion-for-non-programmers.html][ссылке]] показано, как настроить company для автодополнения слов естественного языка в org-mode.
+***** auto-complete-mode for auctex
 
-     auto-complete-mode это режим интерактивных подсказок-автодополнений на все случаи жизни. Существует ac-mode даже для org-mode,  хотя казалось бы.
+      auto-complete-mode это режим интерактивных подсказок-автодополнений на все случаи жизни. Существует ac-mode даже для org-mode,  хотя казалось бы.
 
-     #+begin_src elisp :tangle ~/.emacs
-       ;;30/04/15 -- 23:12
+      #+begin_src elisp :tangle ~/.emacs
+        ;;30/04/15 -- 23:12
 
-       (add-to-list 'ac-modes 'latex-mode)   ; make auto-complete aware of `latex-mode`
+        (add-to-list 'ac-modes 'latex-mode)   ; make auto-complete aware of `latex-mode`
 
-       (defun ac-latex-mode-setup ()         ; add ac-sources to default ac-sources
-           (setq ac-sources (append '(ac-source-math-unicode ac-source-math-latex ac-source-latex-commands)
-                                    ac-sources)))
+        (defun ac-latex-mode-setup ()         ; add ac-sources to default ac-sources
+            (setq ac-sources (append '(ac-source-math-unicode ac-source-math-latex ac-source-latex-commands)
+                                     ac-sources)))
 
-       (add-hook 'TeX-mode-hook 'ac-latex-mode-setup)
-     #+end_src
+        (add-hook 'TeX-mode-hook 'ac-latex-mode-setup)
+      #+end_src
+***** reftex
 
-**** reftex
+      Расширение для работы со ссылками, цитатами et cetera. Удобен в сочетании reftex + Auctex
 
-     Расширение для работы со ссылками, цитатами et cetera. Удобен в сочетании reftex + Auctex
+      Настройка в соответствии с рекомендациями [[http://www.emacswiki.org/emacs/RefTeX][emacs-wiki]].
 
-     Настройка в соответствии с рекомендациями [[http://www.emacswiki.org/emacs/RefTeX][emacs-wiki]].
+      #+begin_src elisp :tangle ~/.emacs
+        ;; [2015-07-04 Сб 20:36]
+        ;;подключение рефтеха совместно с ауктехом
+        ;;(setq reftex-plug-into-AUCTEX t)
+      #+end_src
 
-     #+begin_src elisp :tangle ~/.emacs
-       ;; [2015-07-04 Сб 20:36]
-       ;;подключение рефтеха совместно с ауктехом
-       ;;(setq reftex-plug-into-AUCTEX t)
-     #+end_src
+      Что-то не пошла настройка имакс-вики по намеченной траектории. Поэтому, использую рекомендации оффициального руководства.
 
-     Что-то не пошла настройка имакс-вики по намеченной траектории. Поэтому, использую рекомендации оффициального руководства.
+      #+begin_src elisp :tangle ~/.emacs
+        (require 'reftex)
 
-     #+begin_src elisp :tangle ~/.emacs
-       (require 'reftex)
+        ;;подключение reftex'а одновременно с auctex'ом
 
-       ;;подключение reftex'а одновременно с auctex'ом
+        (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
 
-       (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+        ;;подключение одновременно с latex-mode emacs
 
-       ;;подключение одновременно с latex-mode emacs
+        (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+      #+end_src
 
-       (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-     #+end_src
+      [2015-07-04 Сб 20:52]
 
-     [2015-07-04 Сб 20:52]
+***** latex-narrow-to-environment
+      :LOGBOOK:
+      CLOCK: [2015-11-13 Пт 08:49]--[2015-11-13 Пт 08:54] =>  0:05
+      :END:
 
-*** erlang
-**** Erlang-mode
+      Функция, [[http://mbork.pl/2014-11-15_LaTeX-narrow-to-environment][описанная]] Мартином Борковским, для того, чтобы направлять latex-фрагменты для редактирования в новый буфер с включённым latex-mode'ом
+
+      #+begin_src elisp :tangle ~/.emacs
+        (defun LaTeX-narrow-to-environment (&optional count)
+          "Narrow buffer to current LaTeX environment (or COUNT
+        environments around point)"
+          (interactive "p")
+          (LaTeX-mark-environment count)
+          (narrow-to-region (save-excursion
+                              (goto-char (region-beginning))
+                              (beginning-of-line)
+                              (point))
+                            (region-end))
+          (deactivate-mark))
+      #+end_src
+
+      Определим клавишную связку для вызова
+
+      #+begin_src elisp :tangle ~/.emacs
+        (eval-after-load 'latex
+          '(define-key LaTeX-mode-map (kbd "C-x n e")
+             'LaTeX-narrow-to-environment))
+      #+end_src
+
+      Я понял не правильно назначение этой функции. На самом деле она не отправляет выделенное в отдельный буфер с латех-модом, а определяет окружение латех в точке, и отправляет его с исходным модом.
+**** erlang
+***** Erlang-mode
+      :LOGBOOK:
+      CLOCK: [2015-09-10 Чт 21:53]--[2015-09-10 Чт 22:17] =>  0:24
+      :END:
+
+      #+begin_src elisp :tangle no
+        ;; Erlang mode
+        (setq load-path (cons "/usr/lib/erlang/lib/tools-2.8/emacs" load-path))
+        (setq erlang-root-dir "/usr/lib/erlang")
+        (setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
+        (require 'erlang-start)
+      #+end_src
+
+      Так как эрланг-мод появился теперь в мелпе, то установил его оттуда. [2015-09-10 Чт 21:53]
+      #+begin_src elisp :tangle ~/.emacs
+      (require 'erlang-start)
+      #+end_src
+***** erlang fly-make
+
+      #+begin_src elisp :tangle ~/em-conf
+        (require 'erlang-flymake)
+        (put 'upcase-region 'disabled nil)
+      #+end_src
+**** haskell
+
+***** haskell-mode
+
+      #+begin_src elisp :tangle ~/.emacs
+       ;;haskell-mode из официального репозитория
+
+       ;; установка хуков и включение режима автоматических отступов(identation mode)
+
+
+       (add-hook 'haskell-mode-hook 'turn-on-hi2)
+
+
+       (eval-after-load 'haskell-mode '(progn
+                                        (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
+                                        (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+                                        (define-key haskell-mode-map (kbd "C-c C-n C-t") 'haskell-process-do-type)
+                                        (define-key haskell-mode-map (kbd "C-c C-n C-i") 'haskell-process-do-info)
+                                        (define-key haskell-mode-map (kbd "C-c C-n C-c") 'haskell-process-cabal-build)
+                                        (define-key haskell-mode-map (kbd "C-c C-n c") 'haskell-process-cabal)
+                                        (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)))
+       (eval-after-load 'haskell-cabal '(progn
+                                         (define-key haskell-cabal-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+                                         (define-key haskell-cabal-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
+                                         (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
+                                         (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)))
+
+
+      #+end_src
+**** octave
+***** octave-mode
+      :LOGBOOK:
+      CLOCK: [2015-11-21 Сб 21:53]--[2015-11-21 Сб 22:06] =>  0:13
+      :END:
+
+      Установка автоассоциирования фалов с расширением m с octave-mode
+
+      #+begin_src elisp :tangle ~/.emacs
+        (setq auto-mode-alist
+              (cons '("\\.m$" . octave-mode) auto-mode-alist))
+      #+end_src
+
+      Установка хуков на автодополнение и пр. полезные вещи
+
+      #+begin_src elisp :tangle ~/.emacs
+        (add-hook 'octave-mode-hook
+                  (lambda ()
+                      (abbrev-mode 1)
+                      (auto-fill-mode 1)
+                      (if (eq windiow-system 'x)
+                          (font-lock-mode1 ))))
+      #+end_src
+***** ac-octave
+
+      [2015-11-21 Сб 22:06]
+
+      ac-octave -- auto-complete octave. Система автодополнений для языка octave
+
+      #+begin_src elisp :tangle ~/.emacs
+        (use-package ac-octave
+            :ensure t
+            :init
+            (require 'ac-octave)
+            (defun ac-octave-mode-setup ()
+                (setq ac-sources '(ac-source-octave)))
+            (add-hook 'octave-mode-hook
+                          '(lambda () (ac-octave-mode-setup))))
+      #+end_src
+
+**** Scala
+
+***** ensime
+
+      ENSIME (ENhanced Scala Interaction Mode for Emacs)
+
+      #+begin_src elisp :tangle ~/.emacs
+       (require 'ensime)
+       (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
+      #+end_src
+**** C/C++
+**** Maxima
      :LOGBOOK:
-     CLOCK: [2015-09-10 Чт 21:53]--[2015-09-10 Чт 22:17] =>  0:24
+     CLOCK: [2015-11-22 Вс 17:17]--[2015-11-22 Вс 18:05] =>  0:48
      :END:
 
-     #+begin_src elisp :tangle no
-       ;; Erlang mode
-       (setq load-path (cons "/usr/lib/erlang/lib/tools-2.8/emacs" load-path))
-       (setq erlang-root-dir "/usr/lib/erlang")
-       (setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
-       (require 'erlang-start)
-     #+end_src
+     [2015-11-22 Вс 18:16]
+     Действую согласно [[http://www.emacswiki.org/emacs/MaximaMode][указаниям]] emacs-wiki.
 
-     Так как эрланг-мод появился теперь в мелпе, то установил его оттуда. [2015-09-10 Чт 21:53]
      #+begin_src elisp :tangle ~/.emacs
-     (require 'erlang-start)
+       (add-to-list 'load-path "/usr/share/emacs/site-lisp/maxima")
+       (autoload 'maxima-mode "maxima" "Maxima mode" t)
+       (autoload 'imaxima "imaxima" "Frontend for maxima with Image support" t)
+       (autoload 'maxima "maxima" "Maxima interaction" t)
+       (autoload 'imath-mode "imath" "Imath mode for math formula input" t)
+       (setq imaxima-use-maxima-mode-flag t)
+       (add-to-list 'auto-mode-alist '("\\.ma[cx]" . maxima-mode))
      #+end_src
-**** erlang fly-make
+*** Общие средства
+**** CEDET
+     :LOGBOOK:
+     CLOCK: [2015-11-22 Вс 14:53]--[2015-11-22 Вс 15:07] =>  0:14
+     :END:
 
-     #+begin_src elisp :tangle ~/em-conf
-       (require 'erlang-flymake)
-       (put 'upcase-region 'disabled nil)
+     Частичная настройка [[http://alexott.net/ru/writings/emacs-devenv/EmacsCedet.html][по статье]] Алекса Отта
+
+     #+begin_src elisp :tangle ~/.emacs
+       ;; 13/03/15 -- 19:59
+
+       ;; CEDET settings Пакет CEDET — работа с C/C++/Java (прекрасная статья Alex Ott'a по CEDET):
+
+       (require 'cedet) ;; использую "вшитую" версию CEDET. Мне хватает...
+       (add-to-list 'semantic-default-submodes 'global-semanticdb-minor-mode)
+       (add-to-list 'semantic-default-submodes 'global-semantic-mru-bookmark-mode)
+       (add-to-list 'semantic-default-submodes 'global-semantic-idle-scheduler-mode)
+       (add-to-list 'semantic-default-submodes 'global-semantic-highlight-func-mode)
+       (add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
+       (add-to-list 'semantic-default-submodes 'global-semantic-show-parser-state-mode)
+       (semantic-mode   t)
+       (global-ede-mode t)
+       (require 'ede/generic)
+       (require 'semantic/ia)
+       (require 'semantic/bovine/gcc)
+       (ede-enable-generic-projects)
+
+       ;;14/03/2015 -- 18:25
+
+       ;;интеграция семантика CDET'а с imenu
+
+       (defun my-semantic-hook ()
+           (imenu-add-to-menubar "TAGS"))
+       (add-hook 'semantic-init-hooks 'my-semantic-hook)
+
+       ;;15/03/15 -- 09:05
+
+       ;; настройка semanticdb
+
+       ;; поддержка пакета gnu global
+       ;;(when (cedet-gnu-global-version-check t )
+       ;;    (semanticdb-enable-gnu-global-databases 'c-mode)
+       ;;    (semanticdb-enable-gnu-global-databases 'c++-mode))
+
+       ;; поддержка ctags для основных языков: unix shell, Perl, Pascal, Tcl, Frotran, Asm
+       ;;(when (cedet-ectag-version-check t)
+       ;;    (semantic-load-enable-primary-exuberent-ctags-support))
+
+       ;;строки выше закомментированы в силу того что пакет gnu global не настроен
+
+       ;;настройка EDE
+
+       (ede-cpp-root-project "Test"
+                             :name "Test Project"
+                             :file "~/EDE/CMakeLists.txt"
+                             :include-path '("/"
+                                             "/Common"
+                                             "/Interfaces"
+                                             "/Libs"
+                                             )
+                             :system-include-path '("~/exp/include")
+                             :spp-table '(("isUnix" . "")
+                                          ("BOOST_TEST_DYN_LINK" . "")))
+       ;;2015/03/20 -- 23:08
+       ;;вся проблема была в том, что в пути файла для :file была директория разделённая неэкранированным пробелом "Google drive". После перемещения в домашний каталог в папку EDE проблема самоустранилась
+
      #+end_src
-** yasnippet
 
-   #+BEGIN_SRC elisp :tangle ~/.emacs
-     ;;start yasnippet with emacs
-     (require 'yasnippet)
-     (yas-global-mode 1)
-   #+END_SRC
+     [2015-11-22 Вс 14:53]
+
+     Добавление по [[http://kostafey.blogspot.ru/2009/05/emaxima-emacs-maxima-emaxuma-auctex_3152.html][рекомендации]].
+
+     #+begin_src elisp :tangle no
+       (setq semantic-load-turn-useful-things-on t)
+       (global-set-key [?\C- ] 'semantic-ia-complete-symbol)
+
+       (defun my-semantic-hook-1 ()
+           (semantic-tag-folding-mode 1))
+       (add-hook 'semantic-init-hooks 'my-semantic-hook-1)
+     #+end_src
+
+     Судя по всему, на сегодняшний день([2015-11-22 Вс 15:02]) эти строки уже не актуальны. Поэтому, выключю их.
+**** ECB
+     :LOGBOOK:
+     CLOCK: [2015-11-22 Вс 15:10]--[2015-11-22 Вс 15:21] =>  0:11
+     :END:
+
+     ECB -- emacs code browser. Пакет расширений, используемых для удобства навигации по файлам проектов на различных языках программирования.
+     [[http://ecb.sourceforge.net/][Официальный сайт]] расширения.
+
+     Настройка [[http://kostafey.blogspot.ru/2009/05/emaxima-emacs-maxima-emaxuma-auctex_3152.html][по инструкции]].
+
+     #+begin_src elisp :tangle ~/.emacs
+              (use-package ecb
+                  :ensure t
+                  :init
+                  (require 'ecb)
+                  (global-set-key (kbd "C-c C-a") 'ecb-activate)
+                  (global-set-key (kbd "C-c C-q") 'ecb-deactivate)
+                  (global-set-key (kbd "C-M-m") 'ecb-goto-window-methods)
+                  (setq imenu-auto-rescan 1)
+                  (setq truncate-lines nil)
+                  (setq truncate-partial-width-windows nil)
+       ;;           ;;(setq ecb-auto-activate t)
+                   (setq ecb-options-version "2.40"))
+     #+end_src
+**** projectile
+     :LOGBOOK:
+     CLOCK: [2015-11-25 Ср 20:51]--[2015-11-25 Ср 21:04] =>  0:13
+     :END:
+
+     Расширение для упрощённой навигации по файлам различных проектов. Полезные [[http://tuhdo.github.io/helm-projectile.html][указания]]. Детектирует следы средств распределённой разработки такие как git и автоматически вносит их в список проектов.
+
+     #+begin_src elisp :tangle ~/.emacs
+       (use-package projectile
+           :ensure t
+           :init
+           (projectile-global-mode))
+     #+end_src
+
+     А так же helm-projectile как наиболее удобный интерфейс
+
+     #+begin_src elisp :tangle ~/.emacs
+       (use-package helm-projectile
+           :ensure t
+           :init
+           (setq projectile-completion-system 'helm)
+           (helm-projectile-on)
+           (global-set-key (kbd "C-c p h") 'helm-projectile))
+     #+end_src
+
+     Все команды проджектайл начинаются с префикса C-c p;
+     C-c p h -- вывести список файлов проекта
+     C-c p p -- переключится между проектами
+
+
+     | Key Binding | Command                                     | Description                                                  |
+     |-------------+---------------------------------------------+--------------------------------------------------------------|
+     | C-c p h     | helm-projectile                             | Helm interface to projectile                                 |
+     | C-c p p     | helm-projectile-switch-project              | Switches to another projectile project                       |
+     | C-c p f     | helm-projectile-find-file                   | Lists all files in a project                                 |
+     | C-c p F     | helm-projectile-find-file-in-known-projects | Find file in all known projects                              |
+     | C-c p g     | helm-projectile-find-file-dwim              | Find file based on context at point                          |
+     | C-c p d     | helm-projectile-find-dir                    | Lists available directories in current project               |
+     | C-c p e     | helm-projectile-recentf                     | Lists recently opened files in current project               |
+     | C-c p a     | helm-projectile-find-other-file             | Switch between files with same name but different extensions |
+     | C-c p i     | projectile-invalidate-cache                 | Invalidate cache                                             |
+     | C-c p z     | projectile-cache-current-file               | Add the file of current selected buffer to cache             |
+     | C-c p b     | helm-projectile-switch-to-buffer            | List all open buffers in current project                     |
+     | C-c p s g   | helm-projectile-grep                        | Searches for symbol starting from project root               |
+     | C-c p s a   | helm-projectile-ack                         | Same as above but using ack                                  |
+     | C-c p s s   | helm-projectile-ag                          | Same as above but using ag                                   |
+
+**** yasnippet
+
+     #+BEGIN_SRC elisp :tangle ~/.emacs
+       ;;start yasnippet with emacs
+       (require 'yasnippet)
+       (yas-global-mode 1)
+     #+END_SRC
+**** hightlighting-identation
+     :LOGBOOK:
+     CLOCK: [2015-12-01 Вт 08:30]--[2015-12-01 Вт 08:51] =>  0:21
+     :END:
+
+     Расширение для подсветки отступов. [[https://github.com/antonj/Highlight-Indentation-for-Emacs][Гит]] расширения.
+
+     #+begin_src elisp :tangle ~/.emacs
+       (use-package highlight-indentation
+           :ensure t
+           :init
+           (highlight-indentation-mode 1)
+           (highlight-indentation-current-column-mode 1))
+     #+end_src
+**** multi-line
+     :LOGBOOK:
+     CLOCK: [2015-12-01 Вт 10:12]--[2015-12-01 Вт 10:19] =>  0:07
+     CLOCK: [2015-12-01 Вт 08:58]--[2015-12-01 Вт 08:58] =>  0:00
+     :END:
+
+     [2015-12-01 Вт 10:14]
+     Расширение, которое позволяет в некоторых языках рабивать большие строки на более читаемые колонки строк поменьше. Поддерживает несколько языков программирования, включая с/с++
+     [[https://github.com/IvanMalison/multi-line/][Гит]] расширения.
+
+     #+begin_src elisp :tangle ~/.emacs
+       (use-package multi-line
+           :ensure t
+           :init
+           (require 'multi-line)
+           (global-set-key (kbd "C-c f") 'multi-line))
+     #+end_src
 
 ** iedit-mode
 
@@ -536,70 +913,6 @@
      (setq linum-format " %d") ;; задаем формат нумерации строк
      (add-hook 'prog-mode-hook 'linum-on);; хук на прогерские режимы
    #+end_src
-** CEDET
-
-   Частичная настройка [[http://alexott.net/ru/writings/emacs-devenv/EmacsCedet.html][по статье]] Алекса Отта
-
-   #+begin_src elisp :tangle ~/.emacs
-     ;; 13/03/15 -- 19:59
-
-     ;; CEDET settings Пакет CEDET — работа с C/C++/Java (прекрасная статья Alex Ott'a по CEDET):
-
-     (require 'cedet) ;; использую "вшитую" версию CEDET. Мне хватает...
-     (add-to-list 'semantic-default-submodes 'global-semanticdb-minor-mode)
-     (add-to-list 'semantic-default-submodes 'global-semantic-mru-bookmark-mode)
-     (add-to-list 'semantic-default-submodes 'global-semantic-idle-scheduler-mode)
-     (add-to-list 'semantic-default-submodes 'global-semantic-highlight-func-mode)
-     (add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
-     (add-to-list 'semantic-default-submodes 'global-semantic-show-parser-state-mode)
-     (semantic-mode   t)
-     (global-ede-mode t)
-     (require 'ede/generic)
-     (require 'semantic/ia)
-     (require 'semantic/bovine/gcc)
-     (ede-enable-generic-projects)
-
-     ;;14/03/2015 -- 18:25
-
-     ;;интеграция семантика CDET'а с imenu
-
-     (defun my-semantic-hook ()
-         (imenu-add-to-menubar "TAGS"))
-     (add-hook 'semantic-init-hooks 'my-semantic-hook)
-
-     ;;15/03/15 -- 09:05
-
-     ;; настройка semanticdb
-
-     ;; поддержка пакета gnu global
-     ;;(when (cedet-gnu-global-version-check t )
-     ;;    (semanticdb-enable-gnu-global-databases 'c-mode)
-     ;;    (semanticdb-enable-gnu-global-databases 'c++-mode))
-
-     ;; поддержка ctags для основных языков: unix shell, Perl, Pascal, Tcl, Frotran, Asm
-     ;;(when (cedet-ectag-version-check t)
-     ;;    (semantic-load-enable-primary-exuberent-ctags-support))
-
-     ;;строки выше закомментированы в силу того что пакет gnu global не настроен
-
-     ;;настройка EDE
-
-     (ede-cpp-root-project "Test"
-                           :name "Test Project"
-                           :file "~/EDE/CMakeLists.txt"
-                           :include-path '("/"
-                                           "/Common"
-                                           "/Interfaces"
-                                           "/Libs"
-                                           )
-                           :system-include-path '("~/exp/include")
-                           :spp-table '(("isUnix" . "")
-                                        ("BOOST_TEST_DYN_LINK" . "")))
-     ;;2015/03/20 -- 23:08
-     ;;вся проблема была в том, что в пути файла для :file была директория разделённая неэкранированным пробелом "Google drive". После перемещения в домашний каталог в папку EDE проблема самоустранилась
-
-   #+end_src
-
 ** imenu
 
    #+BEGIN_SRC elisp :tangle ~/.emacs
@@ -611,41 +924,12 @@
      (global-set-key (kbd "<f6>") 'imenu) ;; вызов Imenu на F6
    #+END_SRC
 
-** haskell-mode
-
-   #+begin_src elisp :tangle ~/.emacs
-     ;;haskell-mode из официального репозитория
-
-     ;; установка хуков и включение режима автоматических отступов(identation mode)
-
-
-     (add-hook 'haskell-mode-hook 'turn-on-hi2)
-
-
-     (eval-after-load 'haskell-mode '(progn
-                                      (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
-                                      (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
-                                      (define-key haskell-mode-map (kbd "C-c C-n C-t") 'haskell-process-do-type)
-                                      (define-key haskell-mode-map (kbd "C-c C-n C-i") 'haskell-process-do-info)
-                                      (define-key haskell-mode-map (kbd "C-c C-n C-c") 'haskell-process-cabal-build)
-                                      (define-key haskell-mode-map (kbd "C-c C-n c") 'haskell-process-cabal)
-                                      (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)))
-     (eval-after-load 'haskell-cabal '(progn
-                                       (define-key haskell-cabal-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
-                                       (define-key haskell-cabal-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
-                                       (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
-                                       (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)))
-
-
-   #+end_src
-
 ** org-mode
 *** основной режим org-mode
 
     #+BEGIN_SRC elisp :tangle ~/.emacs
       (require                           'org) ;; вызвать org-mode
-      (global-set-key "\C-ca"     'org-agenda) ;; установить клавиши вызова  агенды на C-c a
-      (global-set-key "\C-cb"   'org-iswitchb) ;; установить переключение между буферами emacs на C-c b
+      (global-set-key "\C-cb"   'org-iswitchb) ;; установить переключение между орг-буферами emacs на C-c b
       (global-set-key "\C-cd" 'org-store-link) ;; установить вызов глобального хранилища ссылок на C-c d
       (global-set-key "\C-cL" 'org-insert-link-global);;[2015-09-24 Чт 21:29]
       (global-set-key "\C-co" 'org-open-at-point-global);;[2015-09-24 Чт 21:29]
@@ -655,8 +939,8 @@
 
       ;;(setq org-agenda-files (list "~/Dropbox/Org/todo/magisterium.org")) ;; указание агенде в каких файлах искать запланированные вещи.
 
-      ;;[2015-06-10 Ср 18:00]
-      (setq org-agenda-files (quote ("~/Dropbox/notes/org/"))) ;; указываем агенде, что все плановые файлы лежат в этой директории
+
+
     #+END_SRC
 
     #+begin_src elisp :tangle ~/.emacs
@@ -696,7 +980,7 @@
                (plantuml . t)
                (haskell . t)
                (latex . t)
-               (C . t))))
+               )))
 
     #+end_src
 
@@ -835,7 +1119,6 @@
        ;;bind to key
        (define-key org-mode-map (kbd "C-<") 'org-begin-template)
      #+end_src
-
 *** Оформление
     :LOGBOOK:
     CLOCK: [2015-11-04 Ср 23:57]--[2015-11-05 Чт 00:01] =>  0:04
@@ -869,7 +1152,129 @@
      #+begin_src elisp :tangle ~/.emacs
        (setq org-ellipsis "↓")
      #+end_src
+*** Планирование и Agenda
+    :LOGBOOK:
+    CLOCK: [2015-11-18 Ср 11:49]--[2015-11-18 Ср 12:14] =>  0:25
+    :END:
 
+    [2015-11-18 Ср 11:56]
+    Настраиваю планирование в орг-моде согласно [[http://pragmaticemacs.com/emacs/org-mode-basics-vi-a-simple-todo-list/][указаниям]].
+
+    #+begin_src elisp :tangle ~/.emacs
+      (global-set-key "\C-ca"     'org-agenda) ;; установить клавиши вызова  агенды на C-c a
+      ;;[2015-06-10 Ср 18:00]
+      (setq org-agenda-files (quote ("~/Dropbox/notes/org/"))) ;; указываем агенде, что все плановые файлы лежат в этой директории
+    #+end_src
+
+
+    Задание приоритетов для задач todo. Задаче с наивысшим приоритетом будет соответствовать пометка [A], задаче с низшим приоритетом метка [C],  по умолчанию на задачу  будет установлена метка [A].
+
+    #+begin_src elisp :tangle ~/.emacs
+      (setq org-highest-priority ?A)
+      (setq org-lowest-priority ?C)
+      (setq org-default-priority ?A)
+    #+end_src
+
+    Определение цветов меток различных приоритетов.
+
+    #+begin_src elisp :tangle ~/.emacs
+      (setq org-priority-faces '((?A . (:foreground "red" :weight bold))
+                                 (?B . (:foreground "orange"))
+                                 (?C . (:foreground "lime"))))
+    #+end_src
+
+    Пусть агенда открывается в отдельном окне
+
+    #+begin_src elisp :tangle ~/.emacs
+      (setq org-agenda-window-setup (quote current-window))
+    #+end_src
+
+    #+begin_src elisp :tangle ~/.emacs
+      (define-key global-map (kbd "C-c g") 'org-capture)
+      ;;(setq org-capture-templates
+      ;;      '(("t" "todo" entry (file+headline  "Задачи")
+      ;;         "* TODO [#A] %?")))
+      ;;
+      ;;[2015-12-08 Вт 21:00]
+      (setq org-capture-templates
+            '(("t" "todo" entry (file+headline "~/Dropbox/notes/org/stack.org" "Задачи")
+               "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")))
+    #+end_src
+
+    Определение состояний выполнения задания. Добавляю INPR -- в процессе выполнения, DROP -- брошено.
+
+    #+begin_src elisp :tangle ~/.emacs
+      (setq org-todo-keywords
+            (quote ((sequence "TODO(t)" "INPR(n)" "|" "DONE(d)" "DROP(s)"))))
+
+    #+end_src
+
+    Введение цветов для новых состояний
+
+    #+begin_src elisp :tangle ~/.emacs
+      (setq org-todo-keyword-faces
+            (quote (("INPR" :foreground "yellow" :weight bold)
+                    ("DROP" :foreground "cyan" :weight bold))))
+    #+end_src
+
+    [2015-12-08 Вт 21:00]
+
+    Настройки из [[http://pragmaticemacs.com/emacs/org-mode-basics-vii-a-todo-list-with-schedules-and-deadlines/][поста]]
+
+
+    #+begin_src elisp :tangle ~/.emacs
+      ;;warn me of any deadlines in next 7 days
+      (setq org-deadline-warning-days 7)
+      ;;show me tasks scheduled or due in next fortnight
+      (setq org-agenda-span (quote fortnight))
+      ;;don't show tasks as scheduled if they are already shown as a deadline
+      (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+      ;;don't give awarning colour to tasks with impending deadlines
+      ;;if they are scheduled to be done
+      (setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
+      ;;don't show tasks that are scheduled or have deadlines in the
+      ;;normal todo list
+      (setq org-agenda-todo-ignore-deadlines (quote all))
+      (setq org-agenda-todo-ignore-scheduled (quote all))
+      ;;sort tasks in order of when they are due and then by priority
+      (setq org-agenda-sorting-strategy
+        (quote
+         ((agenda deadline-up priority-down)
+          (todo priority-down category-keep)
+          (tags priority-down category-keep)
+          (search category-keep))))
+    #+end_src
+
+*** beamer экспорт
+
+
+    #+begin_src elisp :tangle ~/.emacs
+      (require 'ox-latex)
+      (add-to-list 'org-latex-classes
+                   '("beamer"
+                     "\\documentclass\[presentation\]\{beamer\}"
+                     ("\\section\{%s\}" . "\\section*\{%s\}")
+                     ("\\subsection\{%s\}" . "\\subsection*\{%s\}")
+                     ("\\subsubsection\{%s\}" . "\\subsubsection*\{%s\}")))
+    #+end_src
+
+
+    #+begin_src elisp :tangle no
+      (defun my-beamer-bold (contents backend info)
+        (when (eq backend 'beamer)
+          (replace-regexp-in-string "\\`\\\\[A-Za-z0-9]+" "\\\\textbf" contents)))
+
+      (add-to-list 'org-export-filter-bold-functions 'my-beamer-bold)
+    #+end_src
+
+
+    #+begin_src elisp :tangle no
+      (defun my-beamer-structure (contents backend info)
+        (when (eq backend 'beamer)
+          (replace-regexp-in-string "\\`\\\\[A-Za-z0-9]+" "\\\\structure" contents)))
+
+      (add-to-list 'org-export-filter-strike-through-functions 'my-beamer-structure)
+    #+end_src
 ** COMMENT ido
 
    ido -- расширение для интерактивной работы с минибуфером. Это расширение выводит в минибуфер все потенциальные варианты(имён файлов, команд et cetera) содержащие введённе пользователем символы. Этакое автодополнение.
@@ -1146,8 +1551,8 @@
        (global-set-key (kbd "C-c s") 'wcheck-mode)
        (global-set-key (kbd "C-c l") 'wcheck-change-language)
        (global-set-key (kbd "C-c c") 'wcheck-actions) ;; открывает лист вариантов правильного на взгляд орфографиста написания
-       (global-set-key (kbd "C-c n") 'wcheck-jump-forward)
-       (global-set-key (kbd "C-c p") 'wcheck-jump-backward)
+       (global-set-key (kbd "C-c С-с n") 'wcheck-jump-forward)
+       (global-set-key (kbd "C-c С-с p") 'wcheck-jump-backward)
      #+end_src
 ** window-numbering
 
@@ -1239,15 +1644,6 @@
      (global-set-key (kbd "M-s M-a") 'ace-window)
    #+end_src
 
-** ensime
-
-   ENSIME (ENhanced Scala Interaction Mode for Emacs)
-
-   #+begin_src elisp :tangle ~/.emacs
-     (require 'ensime)
-     (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
-   #+end_src
-
 ** page-break-line
    :LOGBOOK:
    CLOCK: [2015-09-18 Пт 12:56]--[2015-09-18 Пт 13:29] =>  0:33
@@ -1260,7 +1656,7 @@
      (global-page-break-lines-mode t)
    #+end_src
 
-** browse-kill-ring
+** COMMENT browse-kill-ring
    :LOGBOOK:
    CLOCK: [2015-09-20 Вс 16:13]--[2015-09-20 Вс 17:12] =>  0:59
    :END:
@@ -1269,6 +1665,9 @@
      (global-set-key "\C-cy" 'browse-kill-ring)
    #+end_src
 
+   [2015-11-06 Пт 12:21]
+
+   Отключаю пока. Нашёл альтернативу в лице helm-kill-ring
 ** avy
    :LOGBOOK:
    CLOCK: [2015-09-20 Вс 17:12]--[2015-09-20 Вс 19:07] =>  1:55
@@ -1447,7 +1846,6 @@
                   ;; If there is more than one, they won't work right.
                   ;;параметр настройки шрифта -- Terminus, и прочих параметров set-default-face'а
 
-                   '(cursor ((t (:background "dark orange"))))
                   ;;настройка цвета скобок расширения rainbow-delimeters
                   '(rainbow-delimiters-depth-2-face ((t (:foreground "orange red"))))
                   '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow"))))
@@ -1458,7 +1856,7 @@
                   '(rainbow-delimiters-depth-8-face ((t (:foreground "dark violet"))))
                   '(rainbow-delimiters-depth-9-face ((t (:foreground "dark magenta")))))
    #+end_src
-** perspective
+** COMMENT perspective
    :LOGBOOK:
    CLOCK: [2015-10-08 Чт 12:56]--[2015-10-08 Чт 13:00] =>  0:04
    :END:
@@ -1470,6 +1868,9 @@
      (persp-mode)
    #+end_src
 
+   [2015-11-30 Пн 08:24]
+
+   Отключаю за ненадобностью.
 ** tiny
    :LOGBOOK:
    CLOCK: [2015-10-21 Ср 20:07]--[2015-10-21 Ср 21:20] =>  1:13
@@ -1534,9 +1935,6 @@
 
    Чтобы выполнить этот участок кода, необходимо воспользоваться комбинацией C-x C-e предварительно установив курсор сразу же за участком кода, который необходимо выполнить.
 ** pdf-tools
-   :LOGBOOK:
-   CLOCK: [2015-11-05 Чт 05:24]
-   :END:
 
    [2015-11-05 Чт 05:26]
    Чтобы каждый не заниматься инсталирование pdf-tools, необходимого для полноценной работы с pdf(гиперссылки, syncTeX et cetera), укажу в файле конфигурации.
@@ -1546,6 +1944,129 @@
          :ensure t
          :init
          (pdf-tools-install))
+   #+end_src
+** beacon
+   :LOGBOOK:
+   CLOCK: [2015-11-06 Пт 10:05]--[2015-11-06 Пт 10:31] =>  0:26
+   :END:
+
+   [2015-11-06 Пт 10:05]
+
+   Расширение для подсветки курсора во врменя скроллинга.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package beacon
+         :ensure t
+         :init
+         (beacon-mode 1)
+         (setq beacon-push-mark 35)
+         (setq beacon-color "cyan"))
+   #+end_src
+** helm
+
+   Helm -- программное расширение имакс, для предоставления более удобного интерфейса(чем дефолтный) со списками и полосами перемещения по ним.
+   [[http://tuhdo.github.io/helm-intro.html][Руководство]].
+*** helm-kill-ring
+
+    Использую как более удобную альтернативу [[*browse-kill-ring][kill-ring-browser]].
+
+    #+begin_src elisp :tangle ~/.emacs
+      (global-set-key (kbd "C-c y") 'helm-show-kill-ring)
+    #+end_src
+    [2015-11-06 Пт 12:31]
+*** helm-mini
+
+    Средство для переключения буферов с стиле helm
+    #+begin_src elisp :tangle ~/.emacs
+      (global-set-key (kbd "C-x b") 'helm-mini)
+    #+end_src
+*** helm-mark-ring
+    :LOGBOOK:
+    CLOCK: [2015-11-11 Ср 12:47]--[2015-11-11 Ср 15:04] =>  2:17
+    :END:
+
+    Навигация в стиле helm по местам пребывания курсора
+
+    #+begin_src elisp :tangle ~/.emacs
+      (global-set-key (kbd "C-c t") 'helm-mark-ring)
+    #+end_src
+** goto-chg
+   :LOGBOOK:
+   CLOCK: [2015-11-11 Ср 12:35]--[2015-11-11 Ср 12:40] =>  0:05
+   :END:
+
+   Расширение, которое позволяет перемещаться по местам последних изменений. Узнал [[http://pragmaticemacs.com/emacs/move-through-edit-points/][благодаря]].
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package goto-chg
+         :ensure t
+         :init
+         (require 'goto-chg)
+         (global-set-key (kbd "C-c . b") 'goto-last-change)
+         (global-set-key (kbd "C-c , b") 'goto-last-change-reverse))
+   #+end_src
+** cursor-chg
+   :LOGBOOK:
+   CLOCK: [2015-11-24 Вт 14:56]--[2015-11-24 Вт 15:03] =>  0:07
+   :END:
+
+   [2015-11-24 Вт 15:03]
+   Расширение, которое изменяет курсор динамически в зависимости от контекста.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package cursor-chg
+         :ensure t
+         :init
+         (require 'cursor-chg)
+         (setq curchg-default-cursor-color "dark orange")
+         ;; Turn on cursor change when Emacs is idle
+         (toggle-cursor-type-when-idle 1)
+         ;; Turn on change for overwrite, read-only, and input mode
+         (change-cursor-mode 1)
+         (defun curchg-change-cursor-on-overwrite/read-only ()
+             "Set cursor type differently for overwrite mode, `view-mode', and read-only buffer.
+     That is, use one cursor type for overwrite mode and read-only buffers,
+     and another cursor type otherwise."
+             (curchg-set-cursor-type
+              (if (or buffer-read-only overwrite-mode view-mode)
+                  curchg-overwrite/read-only-cursor-type
+                  curchg-default-cursor-type))))
+   #+end_src
+** winner-mode
+
+   Это расширение позволяет возвращаться к предыдущей конфигурации окон по комбинации "C-c ←" и "C-c →". Переключился между буферами, убрал какой-нибудь сплит? Теперь всё это поравимо с помощью winner-mode.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (winner-mode 1)
+   #+end_src
+** which-key
+   - Note taken on [2015-11-29 Вс 06:54] \\
+     Выглядит этот так
+     [[file:pictures/which-key-right.png][file:~/Dropbox/Config/Emacs/git-main-config/pictures/which-key-right.png]]
+   :LOGBOOK:
+   CLOCK: [2015-11-29 Вс 06:50]--[2015-11-29 Вс 07:20] =>  0:30
+   :END:
+
+   [2015-11-29 Вс 06:50]
+
+   Расширение, которое показывает все клавиатурные сочетания, начинающиеся с заданого.
+   [[http://pragmaticemacs.com/emacs/get-pop-up-help-for-keybindings-with-which-key/][Первоисточник]]. [[https://github.com/justbur/emacs-which-key][Гит]] приложения.
+
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package which-key
+         :ensure t
+         :init
+         (which-key-mode)
+         (which-key-setup-side-window-right))
+   #+end_src
+** darkroom-mode
+   :LOGBOOK:
+   CLOCK: [2015-11-29 Вс 11:36]--[2015-11-29 Вс 11:44] =>  0:08
+   :END:
+
+   Расширение которое просто берёт и концентрирует внимание на набираемом тексте.
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package darkroom
+         :ensure t)
    #+end_src
 * Тема оформления и шрифт
 ** Тема
@@ -1565,13 +2086,46 @@
           (load-theme 'cyberpunk t))
     #+end_src
 
+    [2015-11-02 Пн 19:27]
     Расскрасим курсор в оранжевый
 
-    #+begin_src elisp :tangle ~/.emacs
+    #+begin_src elisp
       (set-cursor-color "dark orange")
     #+end_src
 
-    [2015-11-02 Пн 19:27]
+    [2015-11-24 Вт 14:27]
+    Несколько изменю [[http://forums.debian.net/viewtopic.php?f=8&t=110336][формулировку]] указания цвета курсора. Полагаю, что поможет при решении проблемы с цветом курсора в новом фрейме.
+
+    #+begin_src elisp :tangle no
+      (setq default-frame-alist '((cursor-color . "DarkOrange")))
+    #+end_src
+
+    Не помогло.
+
+    Ещё одна
+
+    #+begin_src elisp :tangle no
+      (set-face-background 'cursor "DarkOrange")
+    #+end_src
+
+    В силу того, что я установил расширение cursor-chg, которое берёт на себя все настройки курсора, настройка курсора отдельно становится бессмысленной.
+*** COMMENT darcula + org-beautify-theme
+
+    [2015-11-05 Чт 08:08]
+    Не работает.
+    #+BEGIN_SRC elisp :tangle ~/.emacs
+      (use-package darcula-theme
+                 :ensure t
+                 :init
+                 (load-theme 'darcula t))
+    #+END_SRC
+
+    #+BEGIN_SRC elisp :tangle ~/.emacs
+      (use-package org-beautify-theme
+          :ensure t
+          :init
+          (load-theme 'org-beautify-theme t))
+    #+END_SRC
 ** Шрифт
    :LOGBOOK:
    CLOCK: [2015-11-02 Пн 19:28]--[2015-11-02 Пн 19:32] =>  0:04
