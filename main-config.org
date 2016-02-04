@@ -686,6 +686,92 @@
        (setq imaxima-use-maxima-mode-flag t)
        (add-to-list 'auto-mode-alist '("\\.ma[cx]" . maxima-mode))
      #+end_src
+**** python
+     :LOGBOOK:
+     CLOCK: [2016-02-03 Ср 16:11]--[2016-02-03 Ср 16:19] =>  0:08
+     :END:
+
+     [2016-02-03 Ср 16:10]
+
+     По умолчанию, устанавливаем ipython консоль
+
+     #+begin_src elisp :tangle ~/.emacs
+       (setq-default py-shell-name "ipython")
+       (setq-default py-which-bufname "IPython")
+     #+end_src
+***** jedi direx
+      :LOGBOOK:
+      CLOCK: [2016-02-03 Ср 15:51]--[2016-02-03 Ср 15:53] =>  0:02
+      :END:
+
+      расширение для навигации по пайтон проекту
+
+
+      #+begin_src elisp :tangle ~/.emacs
+        (use-package jedi-direx
+            :ensure t
+            :init
+            (eval-after-load "python"
+                '(define-key python-mode-map "\C-cx" 'jedi-direx:pop-to-buffer))
+            (add-hook 'jedi-mode-hook 'jedi-direx:setup))
+      #+end_src
+***** jedi
+      :LOGBOOK:
+      CLOCK: [2016-02-03 Ср 15:36]--[2016-02-03 Ср 15:44] =>  0:08
+      :END:
+
+      [2016-02-03 Ср 15:43]
+      система автодополнения для питона
+
+
+      #+begin_src elisp :tangle ~/.emacs
+        (use-package jedi
+            :ensure t
+            :init
+            (add-hook 'python-mode-hook 'jedi:setup)
+            ;;(setq jedi:setup-keys t)
+            ;;('setq jedi:complete-on-dot t)
+            )
+      #+end_src
+
+      Так как джедай использует пакет epc, устанавливаем и его
+****** epc
+       :LOGBOOK:
+       CLOCK: [2016-02-03 Ср 15:44]--[2016-02-03 Ср 15:51] =>  0:07
+       :END:
+
+
+       #+begin_src elisp :tangle ~/.emacs
+         (use-package epc
+             :ensure t
+             :init
+             (require 'epc))
+       #+end_src
+***** ein
+      :LOGBOOK:
+      CLOCK: [2016-02-03 Ср 16:19]
+      :END:
+
+      [2016-02-03 Ср 16:19]
+
+      ein -- emacs ipython notebook. Как можно понять из названия, что то вроде записной книжки, записями в которой служат полезные программы на питоне. Например записная книжка научных вычислений + графики, ну и всё в таком роде.
+      [[https://github.com/tkf/emacs-ipython-notebook][Гит]].
+      [[https://github.com/tkf/emacs-ipython-notebook/wiki/Screenshots][Сборник скриншотов с примерами творчества]].
+
+
+      #+begin_src elisp :tangle ~/.emacs
+        (use-package ein
+            :ensure t
+            :init
+            (require 'ein))
+      #+end_src
+
+      Для того чтобы начать пользоваться ein'ом необходимо
+
+      1. Запустить ipython notebook(набрав это в консоле)
+      2. M-x: ein:notebooklist-open
+      3. открыть подходящий блокнот
+
 *** Общие средства
 **** CEDET
      :LOGBOOK:
@@ -2109,6 +2195,23 @@
      (use-package darkroom
          :ensure t)
    #+end_src
+** COMMENT elscreen
+   :LOGBOOK:
+   CLOCK: [2016-02-03 Ср 13:47]--[2016-02-03 Ср 16:11] =>  2:24
+   :END:
+
+   [2016-02-02 Вт 16:18]
+
+   Расширение, позволяющее создавать вкладки для emacs
+   #+begin_src elisp :tangle ~/.emacs
+     (use-package elscreen
+         :ensure t
+         :init
+         (elscreen-start))
+   #+end_src
+
+   [2016-02-03 Ср 13:48]
+   Отключу пока. С переключением между фреймами и буферами, кажется вторчным и ненужным.
 * Тема оформления и шрифт
 ** Тема
    :LOGBOOK:
